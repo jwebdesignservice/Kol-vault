@@ -40,17 +40,19 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg text-text-primary font-body">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-4 border-b border-border">
-        <span className="font-heading font-bold text-lg tracking-wider">
-          <span className="text-accent">◈</span> KOLVAULT
-        </span>
-        <div className="flex items-center gap-4">
-          <Link href="/login">
-            <Button variant="ghost" size="sm">SIGN IN</Button>
-          </Link>
-          <Link href="/register">
-            <Button variant="primary" size="sm">LAUNCH APP</Button>
-          </Link>
+      <nav className="border-b border-border px-8">
+        <div className="max-w-7xl mx-auto flex items-center justify-between py-4">
+          <span className="font-heading font-bold text-lg tracking-wider">
+            <span className="text-accent">◈</span> KOLVAULT
+          </span>
+          <div className="flex items-center gap-4">
+            <Link href="/login">
+              <Button variant="ghost" size="sm">SIGN IN</Button>
+            </Link>
+            <Link href="/register">
+              <Button variant="primary" size="sm">LAUNCH APP</Button>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -59,7 +61,7 @@ export default function LandingPage() {
         className="relative min-h-[calc(100vh-57px)] flex items-center clip-corner-bl"
         style={{ background: 'linear-gradient(135deg, #0A0010 60%, #100020 100%)' }}
       >
-        <div className="grid grid-cols-12 gap-8 w-full px-8 py-20">
+        <div className="grid grid-cols-12 gap-8 w-full px-8 py-20 max-w-7xl mx-auto">
           {/* Left 60% */}
           <div className="col-span-7 flex flex-col justify-center gap-8">
             <div>
@@ -165,6 +167,7 @@ export default function LandingPage() {
 
       {/* Features */}
       <section className="px-8 py-20">
+        <div className="max-w-7xl mx-auto">
         <p className="text-[11px] tracking-widest uppercase text-accent mono mb-3">PLATFORM FEATURES</p>
         <h2 className="font-heading font-bold text-4xl text-text-primary mb-12">
           BUILT FOR ALPHA.
@@ -187,10 +190,12 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* How It Works */}
       <section className="px-8 py-20 bg-bg-surface border-y border-border">
+        <div className="max-w-7xl mx-auto">
         <p className="text-[11px] tracking-widest uppercase text-accent mono mb-3">HOW IT WORKS</p>
         <h2 className="font-heading font-bold text-4xl text-text-primary mb-12">THREE STEPS.</h2>
         <div className="flex items-start gap-0">
@@ -219,6 +224,7 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* CTA */}
@@ -226,24 +232,28 @@ export default function LandingPage() {
         className="w-full px-8 py-20 text-center"
         style={{ background: 'linear-gradient(180deg, #100020, #0A0010)' }}
       >
-        <h2 className="font-heading font-bold text-5xl text-text-primary mb-4">
-          READY TO TRACK<br />
-          <span className="text-accent">REAL ALPHA?</span>
-        </h2>
-        <p className="text-text-secondary mb-10 text-lg">
-          Join 847 KOLs and 200+ projects on the only verified performance marketplace.
-        </p>
-        <Link href="/register">
-          <Button variant="primary" size="lg">LAUNCH APP</Button>
-        </Link>
+        <div className="max-w-7xl mx-auto">
+          <h2 className="font-heading font-bold text-5xl text-text-primary mb-4">
+            READY TO TRACK<br />
+            <span className="text-accent">REAL ALPHA?</span>
+          </h2>
+          <p className="text-text-secondary mb-10 text-lg">
+            Join 847 KOLs and 200+ projects on the only verified performance marketplace.
+          </p>
+          <Link href="/register">
+            <Button variant="primary" size="lg">LAUNCH APP</Button>
+          </Link>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border px-8 py-6 flex items-center justify-between">
-        <span className="font-heading font-bold text-sm">
-          <span className="text-accent">◈</span> KOLVAULT
-        </span>
-        <span className="text-text-muted text-[11px] mono">© 2026 KOLVAULT. SOLANA-POWERED.</span>
+      <footer className="border-t border-border px-8 py-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <span className="font-heading font-bold text-sm">
+            <span className="text-accent">◈</span> KOLVAULT
+          </span>
+          <span className="text-text-muted text-[11px] mono">© 2026 KOLVAULT. SOLANA-POWERED.</span>
+        </div>
       </footer>
     </div>
   )
