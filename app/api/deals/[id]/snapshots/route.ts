@@ -1,159 +1,174 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
-import { requireAuth, getUser } from "@/lib/auth/helpers";
+import { getUser } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { CreateSnapshotSchema } from "@/lib/validation/schemas";
+import { CreateDealSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
-import { fetchTokenMetrics } from "@/lib/helius/client";
-
-type RouteContext = { params: { id: string } };
+import { requireAuth } from "@/lib/auth/helpers";
 
 /**
- * GET /api/deals/[id]/snapshots
- * Get snapshots for a deal. Project owner or accepted KOL only.
+ * GET /api/deals
+ * List deals based on caller identity:
+ *   - Unauthenticated: open deals only
+ *   - Project:         their own deals (all statuses)
+ *   - KOL:             open deals + deals they have applied to
+ *
+ * Query params: ?status=open&page=1&limit=20&min_budget=100&max_budget=10000
  */
-export async function GET(req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest) {
   try {
-    const { id: dealId } = params;
-    const user = await requireAuth(req);
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10)));
+    const offset = (page - 1) * limit;
+    const statusFilter = searchParams.get("status");
+    const minBudget = searchParams.get("min_budget");
+    const maxBudget = searchParams.get("max_budget");
+
+    const user = await getUser(req);
     const supabase = createAdminClient();
 
-    // Verify deal exists and user is a party to it
-    const { data: deal } = await supabase
-      .from("deals")
-      .select("id, project_id, accepted_kol_id")
-      .eq("id", dealId)
-      .single();
-
-    if (!deal) return apiError("Deal not found", 404);
-
-    let isParty = false;
-
-    if (user.role === "admin") {
-      isParty = true;
-    } else if (user.role === "project") {
+    if (user?.role === "project") {
+      // Project: see their own deals (all statuses)
       const { data: projectProfile } = await supabase
         .from("project_profiles")
         .select("id")
         .eq("user_id", user.id)
         .single();
-      isParty = projectProfile?.id === deal.project_id;
-    } else if (user.role === "kol") {
+
+      if (!projectProfile) {
+        return apiSuccess({ deals: [], total: 0, page, limit });
+      }
+
+      let query = supabase
+        .from("deals")
+        .select("*", { count: "exact" })
+        .eq("project_id", projectProfile.id)
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (statusFilter) query = query.eq("status", statusFilter);
+      if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+      if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+      const { data, error, count } = await query;
+      if (error) return apiError("Failed to fetch deals", 500);
+
+      return apiSuccess({ deals: data, total: count ?? 0, page, limit });
+    }
+
+    if (user?.role === "kol") {
+      // KOL: open deals + deals they have applied to
       const { data: kolProfile } = await supabase
         .from("kol_profiles")
         .select("id")
         .eq("user_id", user.id)
         .single();
-      isParty = kolProfile?.id === deal.accepted_kol_id;
+
+      let appliedDealIds: string[] = [];
+      if (kolProfile) {
+        const { data: apps } = await supabase
+          .from("applications")
+          .select("deal_id")
+          .eq("kol_id", kolProfile.id);
+        appliedDealIds = (apps ?? []).map((a: { deal_id: string }) => a.deal_id);
+      }
+
+      let query = supabase
+        .from("deals")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (appliedDealIds.length > 0) {
+        // Show open deals OR applied deals
+        query = query.or(`status.eq.open,id.in.(${appliedDealIds.join(",")})`);
+      } else {
+        query = query.eq("status", "open");
+      }
+
+      if (statusFilter && statusFilter !== "open") {
+        // If explicit status filter provided, honour it but only within the visible set
+        query = query.eq("status", statusFilter);
+      }
+      if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+      if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+      const { data, error, count } = await query;
+      if (error) return apiError("Failed to fetch deals", 500);
+
+      return apiSuccess({ deals: data, total: count ?? 0, page, limit });
     }
 
-    if (!isParty) return apiError("Forbidden", 403);
+    // Unauthenticated: open deals only
+    let query = supabase
+      .from("deals")
+      .select("*", { count: "exact" })
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    const { data, error } = await supabase
-      .from("on_chain_snapshots")
-      .select("*")
-      .eq("deal_id", dealId)
-      .order("captured_at", { ascending: true });
+    if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+    if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
 
-    if (error) {
-      console.error("[deals/[id]/snapshots GET]", error);
-      return apiError("Failed to fetch snapshots", 500);
-    }
+    const { data, error, count } = await query;
+    if (error) return apiError("Failed to fetch deals", 500);
 
-    return apiSuccess({ snapshots: data });
+    return apiSuccess({ deals: data, total: count ?? 0, page, limit });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[deals/[id]/snapshots GET]", res);
+    console.error("[deals GET]", res);
     return apiError("Internal server error", 500);
   }
 }
 
 /**
- * POST /api/deals/[id]/snapshots
- * Record an on-chain snapshot. Project owner only.
- * Body: CreateSnapshotSchema
+ * POST /api/deals
+ * Create a new deal. Requires role=project.
+ * Body: CreateDealSchema
  */
-export async function POST(req: NextRequest, { params }: RouteContext) {
+export async function POST(req: NextRequest) {
   try {
-    const { id: dealId } = params;
     const user = await requireAuth(req, "project");
+
+    const body = await req.json();
+    const parsed = CreateDealSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
+    }
+
     const supabase = createAdminClient();
 
-    const { data: projectProfile } = await supabase
+    const { data: projectProfile, error: profileError } = await supabase
       .from("project_profiles")
       .select("id")
       .eq("user_id", user.id)
       .single();
 
-    if (!projectProfile) return apiError("Project profile not found", 400);
+    if (profileError || !projectProfile) {
+      return apiError("Project profile not found. Create a project profile first.", 400);
+    }
 
-    const { data: deal } = await supabase
+    const { data: deal, error } = await supabase
       .from("deals")
-      .select("id, project_id, status")
-      .eq("id", dealId)
-      .single();
-
-    if (!deal) return apiError("Deal not found", 404);
-    if (deal.project_id !== projectProfile.id) return apiError("Forbidden", 403);
-
-    const body = await req.json();
-    const parsed = CreateSnapshotSchema.safeParse(body);
-    if (!parsed.success) {
-      return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
-    }
-
-    const { snapshot_type, token_address, chain, metrics: submittedMetrics } = parsed.data;
-
-    // Validate snapshot type against deal status
-    if (snapshot_type === "baseline" && deal.status !== "in_progress") {
-      return apiError("Baseline snapshots can only be taken when deal is in_progress", 400);
-    }
-    if (
-      snapshot_type === "post_campaign" &&
-      !["in_progress", "pending_review"].includes(deal.status)
-    ) {
-      return apiError(
-        "Post-campaign snapshots can only be taken when deal is in_progress or pending_review",
-        400
-      );
-    }
-
-    // Optionally enrich with Helius live data
-    let mergedMetrics = { ...submittedMetrics };
-    if (process.env.HELIUS_API_KEY && token_address) {
-      try {
-        const liveMetrics = await fetchTokenMetrics(token_address);
-        // Live metrics fill gaps; submitted wins on conflict
-        mergedMetrics = { ...liveMetrics, ...submittedMetrics };
-      } catch (e) {
-        console.warn("[deals/[id]/snapshots POST] helius fetch failed", e);
-      }
-    }
-
-    const { data: snapshot, error } = await supabase
-      .from("on_chain_snapshots")
-      .upsert(
-        {
-          deal_id: dealId,
-          snapshot_type,
-          token_address: token_address ?? null,
-          chain,
-          metrics: mergedMetrics,
-          captured_at: new Date().toISOString(),
-        },
-        { onConflict: "deal_id,snapshot_type" }
-      )
+      .insert({
+        project_id: projectProfile.id,
+        ...parsed.data,
+        status: "draft",
+      })
       .select()
       .single();
 
     if (error) {
-      console.error("[deals/[id]/snapshots POST]", error);
-      return apiError("Failed to record snapshot", 500);
+      console.error("[deals POST] insert error", error);
+      return apiError("Failed to create deal", 500);
     }
 
-    return apiSuccess({ snapshot }, 201);
+    return apiSuccess({ deal }, 201);
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[deals/[id]/snapshots POST]", res);
+    console.error("[deals POST]", res);
     return apiError("Internal server error", 500);
   }
 }
+

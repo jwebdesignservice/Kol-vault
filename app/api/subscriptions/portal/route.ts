@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import Stripe from "stripe";
 import { requireAuth } from "@/lib/auth/helpers";
@@ -47,3 +48,4 @@ export async function POST(req: NextRequest) {
     return apiError("Internal server error", 500);
   }
 }
+

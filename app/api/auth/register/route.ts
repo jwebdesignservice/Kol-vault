@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { RegisterSchema } from "@/lib/validation/schemas";
@@ -81,3 +82,4 @@ export async function POST(req: NextRequest) {
     return apiError("Internal server error", 500);
   }
 }
+

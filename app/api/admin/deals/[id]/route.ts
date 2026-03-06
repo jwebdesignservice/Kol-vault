@@ -1,64 +1,62 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { apiSuccess, apiError } from "@/lib/api/response";
-import { z } from "zod";
-
-type RouteContext = { params: { id: string } };
-
-const AdminUpdateDealSchema = z.object({
-  status: z.enum([
-    "draft",
-    "open",
-    "in_progress",
-    "pending_review",
-    "completed",
-    "cancelled",
-    "disputed",
-  ]),
-});
 
 /**
- * PATCH /api/admin/deals/[id]
- * Update any deal's status. Admin only. No transition restrictions.
- * Body: { status: DealStatus }
+ * GET /api/admin/deals
+ * List all deals with project profile data. Admin only.
+ * Query params: ?status=&page=1&limit=20
  */
-export async function PATCH(req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest) {
   try {
-    const { id } = params;
     await requireAuth(req, "admin");
     const supabase = createAdminClient();
 
-    const { data: deal } = await supabase
+    const { searchParams } = new URL(req.url);
+    const statusFilter = searchParams.get("status");
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10)));
+    const offset = (page - 1) * limit;
+
+    let query = supabase
       .from("deals")
-      .select("id")
-      .eq("id", id)
-      .single();
+      .select(
+        `
+        *,
+        project:project_profiles (
+          id,
+          user_id,
+          token_name,
+          token_symbol,
+          chain,
+          logo_url,
+          website_url
+        )
+      `,
+        { count: "exact" }
+      )
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    if (!deal) return apiError("Deal not found", 404);
+    if (statusFilter) query = query.eq("status", statusFilter);
 
-    const body = await req.json();
-    const parsed = AdminUpdateDealSchema.safeParse(body);
-    if (!parsed.success) {
-      return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
-    }
-
-    const { data: updated, error } = await supabase
-      .from("deals")
-      .update({ status: parsed.data.status })
-      .eq("id", id)
-      .select()
-      .single();
+    const { data, error, count } = await query;
 
     if (error) {
-      console.error("[admin/deals/[id] PATCH]", error);
-      return apiError("Failed to update deal", 500);
+      console.error("[admin/deals GET]", error);
+      return apiError("Failed to fetch deals", 500);
     }
 
-    return apiSuccess({ deal: updated });
+    return apiSuccess({
+      deals: data,
+      pagination: { page, limit, total: count ?? 0 },
+    });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[admin/deals/[id] PATCH]", res);
+    console.error("[admin/deals GET]", res);
     return apiError("Internal server error", 500);
   }
 }
+

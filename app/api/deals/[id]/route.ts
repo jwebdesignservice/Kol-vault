@@ -1,229 +1,174 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
-import { getUser, requireAuth } from "@/lib/auth/helpers";
+import { getUser } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { UpdateDealSchema } from "@/lib/validation/schemas";
+import { CreateDealSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
-
-type RouteContext = { params: { id: string } };
-
-// Statuses where a deal cannot be modified
-const IMMUTABLE_STATUSES = ["in_progress", "pending_review", "completed", "cancelled", "disputed"];
+import { requireAuth } from "@/lib/auth/helpers";
 
 /**
- * GET /api/deals/[id]
- * Returns a single deal.
- * - Public: open deals only
- * - Project owner: any status
- * - KOL: any deal they have an application for
+ * GET /api/deals
+ * List deals based on caller identity:
+ *   - Unauthenticated: open deals only
+ *   - Project:         their own deals (all statuses)
+ *   - KOL:             open deals + deals they have applied to
+ *
+ * Query params: ?status=open&page=1&limit=20&min_budget=100&max_budget=10000
  */
-export async function GET(req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest) {
   try {
-    const { id } = params;
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10)));
+    const offset = (page - 1) * limit;
+    const statusFilter = searchParams.get("status");
+    const minBudget = searchParams.get("min_budget");
+    const maxBudget = searchParams.get("max_budget");
+
     const user = await getUser(req);
     const supabase = createAdminClient();
 
-    const { data: deal, error } = await supabase
-      .from("deals")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error || !deal) {
-      return apiError("Deal not found", 404);
-    }
-
-    // Open deals are public
-    if (deal.status === "open") {
-      return apiSuccess({ deal });
-    }
-
-    if (!user) {
-      return apiError("Not found", 404);
-    }
-
-    if (user.role === "project") {
-      // Check ownership
+    if (user?.role === "project") {
+      // Project: see their own deals (all statuses)
       const { data: projectProfile } = await supabase
         .from("project_profiles")
         .select("id")
         .eq("user_id", user.id)
         .single();
 
-      if (projectProfile && deal.project_id === projectProfile.id) {
-        return apiSuccess({ deal });
+      if (!projectProfile) {
+        return apiSuccess({ deals: [], total: 0, page, limit });
       }
+
+      let query = supabase
+        .from("deals")
+        .select("*", { count: "exact" })
+        .eq("project_id", projectProfile.id)
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (statusFilter) query = query.eq("status", statusFilter);
+      if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+      if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+      const { data, error, count } = await query;
+      if (error) return apiError("Failed to fetch deals", 500);
+
+      return apiSuccess({ deals: data, total: count ?? 0, page, limit });
     }
 
-    if (user.role === "kol") {
+    if (user?.role === "kol") {
+      // KOL: open deals + deals they have applied to
       const { data: kolProfile } = await supabase
         .from("kol_profiles")
         .select("id")
         .eq("user_id", user.id)
         .single();
 
+      let appliedDealIds: string[] = [];
       if (kolProfile) {
-        const { data: application } = await supabase
+        const { data: apps } = await supabase
           .from("applications")
-          .select("id")
-          .eq("deal_id", id)
-          .eq("kol_id", kolProfile.id)
-          .single();
-
-        if (application) {
-          return apiSuccess({ deal });
-        }
+          .select("deal_id")
+          .eq("kol_id", kolProfile.id);
+        appliedDealIds = (apps ?? []).map((a: { deal_id: string }) => a.deal_id);
       }
+
+      let query = supabase
+        .from("deals")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (appliedDealIds.length > 0) {
+        // Show open deals OR applied deals
+        query = query.or(`status.eq.open,id.in.(${appliedDealIds.join(",")})`);
+      } else {
+        query = query.eq("status", "open");
+      }
+
+      if (statusFilter && statusFilter !== "open") {
+        // If explicit status filter provided, honour it but only within the visible set
+        query = query.eq("status", statusFilter);
+      }
+      if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+      if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+      const { data, error, count } = await query;
+      if (error) return apiError("Failed to fetch deals", 500);
+
+      return apiSuccess({ deals: data, total: count ?? 0, page, limit });
     }
 
-    if (user.role === "admin") {
-      return apiSuccess({ deal });
-    }
+    // Unauthenticated: open deals only
+    let query = supabase
+      .from("deals")
+      .select("*", { count: "exact" })
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    return apiError("Not found", 404);
+    if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+    if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+    const { data, error, count } = await query;
+    if (error) return apiError("Failed to fetch deals", 500);
+
+    return apiSuccess({ deals: data, total: count ?? 0, page, limit });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[deals/[id] GET]", res);
+    console.error("[deals GET]", res);
     return apiError("Internal server error", 500);
   }
 }
 
 /**
- * PATCH /api/deals/[id]
- * Update a deal. Project owner only.
- * Allowed status transitions: draft→open, open→cancelled
- * Cannot update if status is in_progress or later.
+ * POST /api/deals
+ * Create a new deal. Requires role=project.
+ * Body: CreateDealSchema
  */
-export async function PATCH(req: NextRequest, { params }: RouteContext) {
+export async function POST(req: NextRequest) {
   try {
-    const { id } = params;
     const user = await requireAuth(req, "project");
-    const supabase = createAdminClient();
-
-    const { data: projectProfile } = await supabase
-      .from("project_profiles")
-      .select("id")
-      .eq("user_id", user.id)
-      .single();
-
-    if (!projectProfile) {
-      return apiError("Project profile not found", 400);
-    }
-
-    const { data: deal } = await supabase
-      .from("deals")
-      .select("id, status, project_id")
-      .eq("id", id)
-      .single();
-
-    if (!deal) return apiError("Deal not found", 404);
-    if (deal.project_id !== projectProfile.id) return apiError("Forbidden", 403);
-
-    if (IMMUTABLE_STATUSES.includes(deal.status)) {
-      return apiError(
-        `Cannot modify a deal with status '${deal.status}'`,
-        400
-      );
-    }
 
     const body = await req.json();
-    const parsed = UpdateDealSchema.safeParse(body);
+    const parsed = CreateDealSchema.safeParse(body);
     if (!parsed.success) {
       return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
     }
 
-    const { status: newStatus, ...fields } = parsed.data;
-
-    // Validate status transition
-    if (newStatus !== undefined) {
-      const valid =
-        (deal.status === "draft" && newStatus === "open") ||
-        (deal.status === "open" && newStatus === "cancelled") ||
-        (deal.status === "draft" && newStatus === "cancelled");
-
-      if (!valid) {
-        return apiError(
-          `Invalid status transition: '${deal.status}' → '${newStatus}'`,
-          400
-        );
-      }
-    }
-
-    const updatePayload = {
-      ...fields,
-      ...(newStatus !== undefined && { status: newStatus }),
-    };
-
-    const { data: updated, error } = await supabase
-      .from("deals")
-      .update(updatePayload)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error("[deals/[id] PATCH] error", error);
-      return apiError("Failed to update deal", 500);
-    }
-
-    return apiSuccess({ deal: updated });
-  } catch (res) {
-    if (res instanceof Response) return res;
-    console.error("[deals/[id] PATCH]", res);
-    return apiError("Internal server error", 500);
-  }
-}
-
-/**
- * DELETE /api/deals/[id]
- * Cancel a deal. Project owner only.
- * Only allowed if status is draft or open.
- */
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
-  try {
-    const { id } = params;
-    const user = await requireAuth(req, "project");
     const supabase = createAdminClient();
 
-    const { data: projectProfile } = await supabase
+    const { data: projectProfile, error: profileError } = await supabase
       .from("project_profiles")
       .select("id")
       .eq("user_id", user.id)
       .single();
 
-    if (!projectProfile) {
-      return apiError("Project profile not found", 400);
+    if (profileError || !projectProfile) {
+      return apiError("Project profile not found. Create a project profile first.", 400);
     }
 
-    const { data: deal } = await supabase
+    const { data: deal, error } = await supabase
       .from("deals")
-      .select("id, status, project_id")
-      .eq("id", id)
+      .insert({
+        project_id: projectProfile.id,
+        ...parsed.data,
+        status: "draft",
+      })
+      .select()
       .single();
 
-    if (!deal) return apiError("Deal not found", 404);
-    if (deal.project_id !== projectProfile.id) return apiError("Forbidden", 403);
-
-    if (!["draft", "open"].includes(deal.status)) {
-      return apiError(
-        `Cannot cancel a deal with status '${deal.status}'`,
-        400
-      );
-    }
-
-    const { error } = await supabase
-      .from("deals")
-      .update({ status: "cancelled" })
-      .eq("id", id);
-
     if (error) {
-      console.error("[deals/[id] DELETE] error", error);
-      return apiError("Failed to cancel deal", 500);
+      console.error("[deals POST] insert error", error);
+      return apiError("Failed to create deal", 500);
     }
 
-    return apiSuccess({ message: "Deal cancelled" });
+    return apiSuccess({ deal }, 201);
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[deals/[id] DELETE]", res);
+    console.error("[deals POST]", res);
     return apiError("Internal server error", 500);
   }
 }
+

@@ -1,183 +1,174 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
-import { requireAuth, getUser } from "@/lib/auth/helpers";
+import { getUser } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ReviewApplicationSchema } from "@/lib/validation/schemas";
+import { CreateDealSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
-import { sendApplicationStatusEmail, sendDealInProgressEmails } from "@/lib/email/service";
-
-type RouteContext = { params: { id: string; appId: string } };
+import { requireAuth } from "@/lib/auth/helpers";
 
 /**
- * GET /api/deals/[id]/applications/[appId]
- * Get a single application.
- * - KOL: can see their own application
- * - Project: can see applications on their deals
+ * GET /api/deals
+ * List deals based on caller identity:
+ *   - Unauthenticated: open deals only
+ *   - Project:         their own deals (all statuses)
+ *   - KOL:             open deals + deals they have applied to
+ *
+ * Query params: ?status=open&page=1&limit=20&min_budget=100&max_budget=10000
  */
-export async function GET(req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest) {
   try {
-    const { id: dealId, appId } = params;
-    const user = await getUser(req);
-    if (!user) return apiError("Unauthorized", 401);
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10)));
+    const offset = (page - 1) * limit;
+    const statusFilter = searchParams.get("status");
+    const minBudget = searchParams.get("min_budget");
+    const maxBudget = searchParams.get("max_budget");
 
+    const user = await getUser(req);
     const supabase = createAdminClient();
 
-    const { data: application } = await supabase
-      .from("applications")
-      .select("*")
-      .eq("id", appId)
-      .eq("deal_id", dealId)
-      .single();
-
-    if (!application) return apiError("Application not found", 404);
-
-    if (user.role === "kol") {
-      const { data: kolProfile } = await supabase
-        .from("kol_profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (!kolProfile || application.kol_id !== kolProfile.id) {
-        return apiError("Forbidden", 403);
-      }
-      return apiSuccess({ application });
-    }
-
-    if (user.role === "project") {
+    if (user?.role === "project") {
+      // Project: see their own deals (all statuses)
       const { data: projectProfile } = await supabase
         .from("project_profiles")
         .select("id")
         .eq("user_id", user.id)
         .single();
 
-      if (!projectProfile) return apiError("Forbidden", 403);
+      if (!projectProfile) {
+        return apiSuccess({ deals: [], total: 0, page, limit });
+      }
 
-      const { data: deal } = await supabase
+      let query = supabase
         .from("deals")
-        .select("project_id")
-        .eq("id", dealId)
+        .select("*", { count: "exact" })
+        .eq("project_id", projectProfile.id)
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (statusFilter) query = query.eq("status", statusFilter);
+      if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+      if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+      const { data, error, count } = await query;
+      if (error) return apiError("Failed to fetch deals", 500);
+
+      return apiSuccess({ deals: data, total: count ?? 0, page, limit });
+    }
+
+    if (user?.role === "kol") {
+      // KOL: open deals + deals they have applied to
+      const { data: kolProfile } = await supabase
+        .from("kol_profiles")
+        .select("id")
+        .eq("user_id", user.id)
         .single();
 
-      if (!deal || deal.project_id !== projectProfile.id) return apiError("Forbidden", 403);
-      return apiSuccess({ application });
+      let appliedDealIds: string[] = [];
+      if (kolProfile) {
+        const { data: apps } = await supabase
+          .from("applications")
+          .select("deal_id")
+          .eq("kol_id", kolProfile.id);
+        appliedDealIds = (apps ?? []).map((a: { deal_id: string }) => a.deal_id);
+      }
+
+      let query = supabase
+        .from("deals")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (appliedDealIds.length > 0) {
+        // Show open deals OR applied deals
+        query = query.or(`status.eq.open,id.in.(${appliedDealIds.join(",")})`);
+      } else {
+        query = query.eq("status", "open");
+      }
+
+      if (statusFilter && statusFilter !== "open") {
+        // If explicit status filter provided, honour it but only within the visible set
+        query = query.eq("status", statusFilter);
+      }
+      if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+      if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+      const { data, error, count } = await query;
+      if (error) return apiError("Failed to fetch deals", 500);
+
+      return apiSuccess({ deals: data, total: count ?? 0, page, limit });
     }
 
-    if (user.role === "admin") {
-      return apiSuccess({ application });
-    }
+    // Unauthenticated: open deals only
+    let query = supabase
+      .from("deals")
+      .select("*", { count: "exact" })
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    return apiError("Forbidden", 403);
+    if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
+    if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));
+
+    const { data, error, count } = await query;
+    if (error) return apiError("Failed to fetch deals", 500);
+
+    return apiSuccess({ deals: data, total: count ?? 0, page, limit });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[deals/[id]/applications/[appId] GET]", res);
+    console.error("[deals GET]", res);
     return apiError("Internal server error", 500);
   }
 }
 
 /**
- * PATCH /api/deals/[id]/applications/[appId]
- * Review an application. Project owner only.
- * Body: { status: 'accepted' | 'rejected' }
- *
- * If accepted:
- *   - Set deal status to 'in_progress'
- *   - Set deal.accepted_kol_id
- *   - Reject all other pending applications for this deal
+ * POST /api/deals
+ * Create a new deal. Requires role=project.
+ * Body: CreateDealSchema
  */
-export async function PATCH(req: NextRequest, { params }: RouteContext) {
+export async function POST(req: NextRequest) {
   try {
-    const { id: dealId, appId } = params;
     const user = await requireAuth(req, "project");
+
+    const body = await req.json();
+    const parsed = CreateDealSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
+    }
+
     const supabase = createAdminClient();
 
-    const { data: projectProfile } = await supabase
+    const { data: projectProfile, error: profileError } = await supabase
       .from("project_profiles")
       .select("id")
       .eq("user_id", user.id)
       .single();
 
-    if (!projectProfile) return apiError("Project profile not found", 400);
+    if (profileError || !projectProfile) {
+      return apiError("Project profile not found. Create a project profile first.", 400);
+    }
 
-    const { data: deal } = await supabase
+    const { data: deal, error } = await supabase
       .from("deals")
-      .select("id, project_id, status")
-      .eq("id", dealId)
-      .single();
-
-    if (!deal) return apiError("Deal not found", 404);
-    if (deal.project_id !== projectProfile.id) return apiError("Forbidden", 403);
-    if (deal.status !== "open") {
-      return apiError(`Cannot review applications for a deal with status '${deal.status}'`, 400);
-    }
-
-    const { data: application } = await supabase
-      .from("applications")
-      .select("id, kol_id, status")
-      .eq("id", appId)
-      .eq("deal_id", dealId)
-      .single();
-
-    if (!application) return apiError("Application not found", 404);
-    if (application.status !== "pending") {
-      return apiError(`Application has already been reviewed (status: '${application.status}')`, 400);
-    }
-
-    const body = await req.json();
-    const parsed = ReviewApplicationSchema.safeParse(body);
-    if (!parsed.success) {
-      return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
-    }
-
-    const { status: newStatus } = parsed.data;
-
-    // Update the reviewed application
-    const { data: updatedApp, error: appError } = await supabase
-      .from("applications")
-      .update({ status: newStatus, reviewed_at: new Date().toISOString() })
-      .eq("id", appId)
+      .insert({
+        project_id: projectProfile.id,
+        ...parsed.data,
+        status: "draft",
+      })
       .select()
       .single();
 
-    if (appError) {
-      console.error("[deals/[id]/applications/[appId] PATCH] app update error", appError);
-      return apiError("Failed to update application", 500);
+    if (error) {
+      console.error("[deals POST] insert error", error);
+      return apiError("Failed to create deal", 500);
     }
 
-    if (newStatus === "accepted") {
-      // Set deal to in_progress and record the accepted KOL
-      const { error: dealError } = await supabase
-        .from("deals")
-        .update({ status: "in_progress", accepted_kol_id: application.kol_id })
-        .eq("id", dealId);
-
-      if (dealError) {
-        console.error("[deals/[id]/applications/[appId] PATCH] deal update error", dealError);
-        return apiError("Failed to update deal status", 500);
-      }
-
-      // Reject all other pending applications for this deal
-      const { error: rejectError } = await supabase
-        .from("applications")
-        .update({ status: "rejected", reviewed_at: new Date().toISOString() })
-        .eq("deal_id", dealId)
-        .eq("status", "pending")
-        .neq("id", appId);
-
-      if (rejectError) {
-        console.error("[deals/[id]/applications/[appId] PATCH] bulk reject error", rejectError);
-        // Non-fatal: the primary accept succeeded
-      }
-    }
-
-    sendApplicationStatusEmail(appId, newStatus).catch(console.error)
-    if (newStatus === "accepted") {
-      sendDealInProgressEmails(dealId).catch(console.error)
-    }
-
-    return apiSuccess({ application: updatedApp });
+    return apiSuccess({ deal }, 201);
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[deals/[id]/applications/[appId] PATCH]", res);
+    console.error("[deals POST]", res);
     return apiError("Internal server error", 500);
   }
 }
+

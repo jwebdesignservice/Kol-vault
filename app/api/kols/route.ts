@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { apiSuccess, apiError } from "@/lib/api/response";
@@ -53,3 +54,4 @@ export async function GET(req: NextRequest) {
     return apiError("Internal server error", 500);
   }
 }
+

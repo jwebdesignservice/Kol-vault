@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { createServerClient } from "@/lib/supabase/server";
 import { apiSuccess, apiError } from "@/lib/api/response";
 
@@ -20,3 +21,4 @@ export async function POST() {
     return apiError("Internal server error", 500);
   }
 }
+

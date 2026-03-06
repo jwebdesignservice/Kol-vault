@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { getUser, getUserProfile } from "@/lib/auth/helpers";
 import { apiSuccess, apiError } from "@/lib/api/response";
@@ -23,3 +24,4 @@ export async function GET(req: NextRequest) {
     return apiError("Internal server error", 500);
   }
 }
+
