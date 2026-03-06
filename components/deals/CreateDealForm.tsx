@@ -207,7 +207,7 @@ export function CreateDealForm() {
       {step === 3 && (
         <div className="flex flex-col gap-4">
           <div className="bg-bg-elevated border border-border p-6 font-mono text-sm leading-relaxed">
-            <div className="text-accent mb-3 text-[11px] tracking-widest">// DEAL SUMMARY</div>
+            <div className="text-accent mb-3 text-[11px] tracking-widest">{'// DEAL SUMMARY'}</div>
             <div className="flex flex-col gap-2">
               {[
                 ['title', form.title],
