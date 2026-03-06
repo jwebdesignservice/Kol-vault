@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  border-radius: 0 !important;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: #0A0010;
+  color: #F0E6FF;
+  margin: 0;
+  padding: 0;
+}
+
+.clip-corner-tr {
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+
+.clip-corner-bl {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+.glow-border {
+  box-shadow: 0 0 12px rgba(123, 47, 190, 0.3);
+  border-color: #7B2FBE;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #100020 25%, #15002E 50%, #100020 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes pulse_dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.mono {
+  font-family: var(--font-mono), monospace;
+}
+
+.stat-number {
+  font-family: var(--font-mono), monospace;
+  color: #C084FC;
+}
+
+.positive {
+  color: #22D3A0;
+}
+
+.negative {
+  color: #FF4466;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #100020;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2D0E5A;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7B2FBE;
+}
+
+/* Remove input autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px #100020 inset !important;
+  -webkit-text-fill-color: #F0E6FF !important;
+}
+
+/* Table reset */
+table {
+  border-collapse: collapse;
+}
