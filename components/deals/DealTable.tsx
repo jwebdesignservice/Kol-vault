@@ -1,16 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { MockDeal, DealStatus } from '@/lib/mock/deals'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { Table, Th, Td } from '@/components/ui/Table'
+import { Th, Td } from '@/components/ui/Table'
 import { ApplyModal } from './ApplyModal'
+import { useToast } from '@/hooks/useToast'
 import Link from 'next/link'
 
 interface DealTableProps {
   deals: MockDeal[]
   role: 'kol' | 'project'
+  isGuest?: boolean
 }
 
 const statusVariant: Record<DealStatus, 'positive' | 'accent' | 'muted' | 'negative'> = {
@@ -20,13 +23,24 @@ const statusVariant: Record<DealStatus, 'positive' | 'accent' | 'muted' | 'negat
   DISPUTED: 'negative',
 }
 
-export function DealTable({ deals, role }: DealTableProps) {
+export function DealTable({ deals, role, isGuest = false }: DealTableProps) {
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [applied, setApplied] = useState<Set<string>>(new Set())
+  const { addToast } = useToast()
+  const router = useRouter()
 
   const handleApply = (dealId: string) => {
     setApplied((prev) => new Set(Array.from(prev).concat(dealId)))
     setApplyingId(null)
+  }
+
+  const handleApplyClick = (dealId: string) => {
+    if (isGuest) {
+      addToast('info', 'Create a free account to apply to deals')
+      router.push('/register')
+      return
+    }
+    setApplyingId(applyingId === dealId ? null : dealId)
   }
 
   return (
@@ -91,8 +105,8 @@ export function DealTable({ deals, role }: DealTableProps) {
                   <Badge variant={statusVariant[deal.status]}>{deal.status.replace('_', ' ')}</Badge>
                 </Td>
                 <Td>
-                  {role === 'kol' ? (
-                    applied.has(deal.id) ? (
+                  {isGuest || role === 'kol' ? (
+                    applied.has(deal.id) && !isGuest ? (
                       <span className="text-[11px] tracking-widest uppercase text-text-muted font-medium mono">
                         APPLIED
                       </span>
@@ -101,9 +115,9 @@ export function DealTable({ deals, role }: DealTableProps) {
                         variant="outline"
                         size="sm"
                         disabled={deal.status !== 'OPEN'}
-                        onClick={() => setApplyingId(applyingId === deal.id ? null : deal.id)}
+                        onClick={() => handleApplyClick(deal.id)}
                       >
-                        {applyingId === deal.id ? 'CLOSE' : 'APPLY'}
+                        APPLY
                       </Button>
                     )
                   ) : (
@@ -113,7 +127,7 @@ export function DealTable({ deals, role }: DealTableProps) {
                   )}
                 </Td>
               </tr>
-              {applyingId === deal.id && (
+              {!isGuest && applyingId === deal.id && (
                 <tr key={`${deal.id}-apply`}>
                   <td colSpan={8} className="p-0">
                     <ApplyModal

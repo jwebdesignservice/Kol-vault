@@ -1,24 +1,34 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MockKOL } from '@/lib/mock/kols'
 import { Sparkline } from './Sparkline'
 import { KOLProfileCard } from './KOLProfileCard'
-import { Table, Th, Td } from '@/components/ui/Table'
+import { Th, Td } from '@/components/ui/Table'
+import { useToast } from '@/hooks/useToast'
 
 interface LeaderboardTableProps {
   kols: MockKOL[]
+  isGuest?: boolean
 }
 
-export function LeaderboardTable({ kols }: LeaderboardTableProps) {
+export function LeaderboardTable({ kols, isGuest = false }: LeaderboardTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [followed, setFollowed] = useState<Set<string>>(
     new Set(kols.filter((k) => k.followed).map((k) => k.id))
   )
+  const { addToast } = useToast()
+  const router = useRouter()
 
   const toggleFollow = (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
+    if (isGuest) {
+      addToast('info', 'Sign up free to follow KOLs and get alerts')
+      router.push('/register')
+      return
+    }
     setFollowed((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
@@ -66,7 +76,6 @@ export function LeaderboardTable({ kols }: LeaderboardTableProps) {
                   ].join(' ')}
                   style={{ height: 64 }}
                 >
-                  {/* Left glow border via box-shadow trick using a cell border */}
                   <Td className="relative w-16 overflow-hidden">
                     <div
                       className={[
@@ -129,12 +138,12 @@ export function LeaderboardTable({ kols }: LeaderboardTableProps) {
                       onClick={(e) => toggleFollow(e, kol.id)}
                       className={[
                         'px-3 py-1.5 text-[11px] tracking-widest uppercase font-medium border transition-all duration-150',
-                        isFollowed
+                        isFollowed && !isGuest
                           ? 'bg-accent border-accent text-white'
                           : 'bg-transparent border-border text-text-muted hover:border-accent hover:text-text-primary',
                       ].join(' ')}
                     >
-                      {isFollowed ? 'FOLLOWING' : 'FOLLOW'}
+                      {isFollowed && !isGuest ? 'FOLLOWING' : 'FOLLOW'}
                     </button>
                   </Td>
                 </tr>
@@ -149,7 +158,7 @@ export function LeaderboardTable({ kols }: LeaderboardTableProps) {
                           transition={{ duration: 0.2 }}
                           style={{ overflow: 'hidden' }}
                         >
-                          <KOLProfileCard kol={kol} />
+                          <KOLProfileCard kol={kol} isGuest={isGuest} />
                         </motion.div>
                       </AnimatePresence>
                     </td>

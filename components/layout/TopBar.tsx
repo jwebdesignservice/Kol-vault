@@ -2,7 +2,9 @@
 
 import { Bell } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { WalletButton } from '@/components/ui/WalletButton'
+import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/hooks/useAuth'
 
 const PAGE_TITLES: Record<string, string> = {
@@ -88,14 +90,27 @@ export function TopBar() {
 
       {/* Right */}
       <div className="flex items-center gap-3 px-4 shrink-0">
-        <WalletButton />
-        <button className="text-text-muted hover:text-text-primary transition-colors">
-          <Bell size={16} />
-        </button>
-        {user && (
-          <div className="w-7 h-7 bg-accent flex items-center justify-center text-white text-[10px] font-bold mono">
-            {user.email.slice(0, 2).toUpperCase()}
-          </div>
+        {user ? (
+          <>
+            <WalletButton />
+            <button className="text-text-muted hover:text-text-primary transition-colors">
+              <Bell size={16} />
+            </button>
+            <div className="w-7 h-7 bg-accent flex items-center justify-center text-white text-[10px] font-bold mono">
+              {user.email.slice(0, 2).toUpperCase()}
+            </div>
+          </>
+        ) : (
+          <>
+            <Link href="/login">
+              <span className="text-[11px] tracking-widest uppercase mono text-text-muted hover:text-text-primary transition-colors">
+                SIGN IN
+              </span>
+            </Link>
+            <Link href="/register">
+              <Button variant="primary" size="sm">SIGN UP FREE</Button>
+            </Link>
+          </>
         )}
       </div>
     </header>
