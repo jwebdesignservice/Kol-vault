@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
 import { AuthProvider } from '@/lib/context/AuthContext'
 import { ToastProvider } from '@/lib/context/ToastContext'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -10,21 +8,11 @@ import { BottomNav } from '@/components/layout/BottomNav'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useAuth } from '@/hooks/useAuth'
 
-// Pages that require a logged-in session
-const AUTH_REQUIRED = ['/dashboard', '/profile', '/deals/create']
+// DEV MODE: all pages accessible without auth
+// TODO: re-enable auth guards before launch
 
 function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  const pathname = usePathname()
-
-  const requiresAuth = AUTH_REQUIRED.some((p) => pathname.startsWith(p))
-
-  useEffect(() => {
-    if (!loading && !user && requiresAuth) {
-      router.push('/login')
-    }
-  }, [user, loading, requiresAuth, router])
+  const { loading } = useAuth()
 
   if (loading) {
     return (
@@ -38,9 +26,6 @@ function AppShell({ children }: { children: React.ReactNode }) {
       </div>
     )
   }
-
-  // Block protected pages for guests while redirect is processing
-  if (!user && requiresAuth) return null
 
   return (
     <div className="flex h-screen bg-bg overflow-hidden">
