@@ -11,27 +11,67 @@ const MOCK_LEADERBOARD = [
   { rank: 5, name: 'AltSeason',    handle: '@AltSeason_',   winRate: 64, roi: '+76%',  best: 'RNDR +640%' },
 ]
 
-/* ─── Aurora backgrounds ─────────────────────────────────────────────────── */
+/* ─── Hero: Particle Network ─────────────────────────────────────────────── */
 function HeroAurora() {
+  const nodes = [
+    { id: 'n1',  x: 140,  y: 175, r: 2,   c: '#7B2FBE', label: null,        d: '0s'    },
+    { id: 'n2',  x: 325,  y: 295, r: 3.5, c: '#A855F7', label: 'SCORE: 94', d: '0.5s'  },
+    { id: 'n3',  x: 505,  y: 130, r: 1.5, c: '#22D3A0', label: null,        d: '1s'    },
+    { id: 'n4',  x: 700,  y: 265, r: 4,   c: '#A855F7', label: 'ROI +187%', d: '0.3s'  },
+    { id: 'n5',  x: 880,  y: 148, r: 2,   c: '#7B2FBE', label: null,        d: '0.8s'  },
+    { id: 'n6',  x: 1045, y: 298, r: 3.5, c: '#22D3A0', label: 'WIN 76%',   d: '1.2s'  },
+    { id: 'n7',  x: 1205, y: 150, r: 1.5, c: '#7B2FBE', label: null,        d: '0.4s'  },
+    { id: 'n8',  x: 1362, y: 278, r: 2.5, c: '#C084FC', label: 'PLATINUM',  d: '0.9s'  },
+    { id: 'n9',  x: 200,  y: 488, r: 1.5, c: '#22D3A0', label: null,        d: '1.5s'  },
+    { id: 'n10', x: 420,  y: 592, r: 3,   c: '#7B2FBE', label: '$2.4M',     d: '0.2s'  },
+    { id: 'n11', x: 625,  y: 462, r: 2,   c: '#A855F7', label: null,        d: '0.7s'  },
+    { id: 'n12', x: 820,  y: 572, r: 2,   c: '#22D3A0', label: null,        d: '1.1s'  },
+    { id: 'n13', x: 1002, y: 490, r: 3,   c: '#A855F7', label: '847 KOLS',  d: '0.6s'  },
+    { id: 'n14', x: 1182, y: 590, r: 1.5, c: '#7B2FBE', label: null,        d: '1.4s'  },
+    { id: 'n15', x: 1378, y: 452, r: 2,   c: '#22D3A0', label: null,        d: '0.1s'  },
+  ]
+  const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n])) as Record<string, typeof nodes[number]>
+  const connections: [string, string][] = [
+    ['n1','n2'],  ['n2','n3'],  ['n3','n4'],  ['n4','n5'],  ['n5','n6'],  ['n6','n7'],  ['n7','n8'],
+    ['n1','n9'],  ['n2','n10'], ['n4','n11'], ['n6','n13'], ['n8','n15'],
+    ['n9','n10'], ['n10','n11'],['n11','n12'],['n12','n13'],['n13','n14'],['n14','n15'],
+    ['n4','n6'],
+  ]
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      <div className="absolute inset-0 aurora-glow" style={{ background: ['radial-gradient(ellipse 80% 55% at 50% 10%, rgba(123,47,190,0.45) 0%, transparent 65%)', 'radial-gradient(ellipse 50% 60% at 12% 70%, rgba(34,211,160,0.10) 0%, transparent 60%)', 'radial-gradient(ellipse 40% 40% at 88% 75%, rgba(168,85,247,0.15) 0%, transparent 55%)'].join(',') }} />
-      <div className="absolute inset-0 aurora-glow-slow" style={{ background: 'radial-gradient(ellipse 60% 35% at 50% 0%, rgba(192,132,252,0.2) 0%, transparent 60%)' }} />
-      <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(rgba(123,47,190,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,190,0.08) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+      {/* Ambient purple glow */}
+      <div className="absolute inset-0 aurora-glow" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 8%, rgba(123,47,190,0.32) 0%, transparent 62%)' }} />
+      {/* Fine grid */}
+      <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(123,47,190,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,190,0.05) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+      {/* Particle network SVG */}
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" fill="none">
-        <defs>
-          <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#7B2FBE" stopOpacity="0" /><stop offset="35%" stopColor="#A855F7" stopOpacity="0.55" /><stop offset="65%" stopColor="#C084FC" stopOpacity="0.4" /><stop offset="100%" stopColor="#C084FC" stopOpacity="0" /></linearGradient>
-          <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#22D3A0" stopOpacity="0" /><stop offset="50%" stopColor="#22D3A0" stopOpacity="0.22" /><stop offset="100%" stopColor="#22D3A0" stopOpacity="0" /></linearGradient>
-          <linearGradient id="lg3" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stopColor="#7B2FBE" stopOpacity="0" /><stop offset="45%" stopColor="#A855F7" stopOpacity="0.3" /><stop offset="100%" stopColor="#A855F7" stopOpacity="0" /></linearGradient>
-        </defs>
-        <path className="flow-path" d="M-80,750 C220,520 480,180 720,280 C960,380 1180,220 1520,60" stroke="url(#lg1)" strokeWidth="1.2" />
-        <path className="flow-path-slow" d="M-80,800 C260,560 500,240 720,330 C940,420 1140,280 1520,110" stroke="url(#lg1)" strokeWidth="0.6" />
-        <path className="flow-path-slow" d="M-80,200 C160,320 380,600 640,380 C900,160 1160,480 1520,600" stroke="url(#lg2)" strokeWidth="0.9" />
-        <path className="flow-path" d="M1520,700 C1200,500 900,200 720,320 C540,440 280,160 -80,300" stroke="url(#lg3)" strokeWidth="0.7" />
-        <circle cx="720" cy="280" r="3" fill="#A855F7" opacity="0.7" />
-        <circle cx="720" cy="280" r="8" fill="#A855F7" opacity="0.12" />
-        <circle cx="640" cy="380" r="2.5" fill="#22D3A0" opacity="0.5" />
-        <circle cx="640" cy="380" r="7" fill="#22D3A0" opacity="0.08" />
+        {/* Connection lines */}
+        {connections.map(([a, b], i) => {
+          const na = nodeMap[a], nb = nodeMap[b]
+          if (!na || !nb) return null
+          return (
+            <line
+              key={`${a}-${b}`}
+              x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
+              stroke="#7B2FBE"
+              strokeWidth="0.6"
+              style={{ animation: `line-fade ${3 + (i % 3)}s ease-in-out ${((i * 0.22) % 2).toFixed(2)}s infinite` }}
+            />
+          )
+        })}
+        {/* Nodes */}
+        {nodes.map(n => (
+          <g key={n.id}>
+            {/* Halo */}
+            <circle cx={n.x} cy={n.y} r={n.r * 4} fill={n.c} style={{ animation: `halo-pulse ${2.5 + parseFloat(n.d)}s ease-in-out ${n.d} infinite` }} />
+            {/* Core */}
+            <circle cx={n.x} cy={n.y} r={n.r} fill={n.c} opacity={0.85} />
+            {/* Label */}
+            {n.label && (
+              <text x={n.x + n.r + 8} y={n.y + 4} fontSize="9" fill={n.c} opacity={0.45} fontFamily="monospace" letterSpacing="1">{n.label}</text>
+            )}
+          </g>
+        ))}
       </svg>
     </div>
   )
@@ -46,21 +86,20 @@ function ProblemSection() {
   ]
   return (
     <section className="relative overflow-hidden" style={{ background: '#04000A' }}>
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(255,68,102,0.07) 0%, transparent 60%)' }} />
       <div className="max-w-7xl mx-auto px-8 py-20">
         <div className="flex items-center gap-4 mb-10">
-          <div className="w-10 h-px" style={{ background: '#FF4466' }} />
-          <span className="text-[11px] tracking-widest uppercase mono" style={{ color: '#FF4466' }}>THE PROBLEM</span>
+          <div className="w-10 h-px bg-accent" />
+          <span className="text-[11px] tracking-widest uppercase mono text-accent">THE PROBLEM</span>
         </div>
         <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>
           The crypto KOL market<br /><span style={{ color: '#A855F7' }}>is broken.</span>
         </h2>
         <div className="grid grid-cols-3 gap-5">
           {problems.map((p) => (
-            <div key={p.n} className="relative px-8 py-10 border border-border-muted" style={{ borderLeft: '3px solid #FF4466' }}>
-              <div className="absolute right-4 top-2 font-heading font-bold leading-none select-none pointer-events-none mono" style={{ fontSize: '9rem', color: '#FF4466', opacity: 0.07 }}>{p.n}</div>
+            <div key={p.n} className="relative px-8 py-10 border border-border-muted" style={{ borderLeft: '3px solid rgba(255,68,102,0.3)' }}>
+              <div className="absolute right-4 top-2 font-heading font-bold leading-none select-none pointer-events-none mono" style={{ fontSize: '9rem', color: '#7B2FBE', opacity: 0.07 }}>{p.n}</div>
               <div className="relative">
-                <p className="mono text-[11px] tracking-widest mb-4" style={{ color: '#FF4466' }}>{p.n}</p>
+                <p className="mono text-[11px] tracking-widest mb-4 text-accent">{p.n}</p>
                 <h3 className="font-heading font-bold text-xl text-text-primary mb-4">{p.title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed">{p.body}</p>
               </div>

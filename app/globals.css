@@ -142,3 +142,13 @@ table {
   stroke-dasharray: 1200;
   animation: flow-line 9s ease-in-out 2s infinite;
 }
+
+/* Particle network animations */
+@keyframes line-fade {
+  0%, 100% { opacity: 0.05; }
+  50%       { opacity: 0.2;  }
+}
+@keyframes halo-pulse {
+  0%, 100% { opacity: 0;    }
+  50%       { opacity: 0.12; }
+}
