@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { StatBar } from '@/components/kol/StatBar'
+
 import { Button } from '@/components/ui/Button'
 
 /* ─── Mock data ──────────────────────────────────────────────────────────── */
@@ -10,6 +10,45 @@ const MOCK_LEADERBOARD = [
   { rank: 4, name: 'CryptoOracle', handle: '@CryptoOracle', winRate: 66, roi: '+211%', best: 'PYTH +780%' },
   { rank: 5, name: 'AltSeason',    handle: '@AltSeason_',   winRate: 64, roi: '+76%',  best: 'RNDR +640%' },
 ]
+
+/* ─── Marquee ────────────────────────────────────────────────────────────── */
+const MARQUEE_ITEMS = [
+  { text: 'Every KOL call tracked on-chain — no fakes, no excuses',                        bold: true  },
+  { text: 'USDC escrow released only when campaign KPIs are verified by Helius',           bold: false },
+  { text: '847 KOLs ranked by real on-chain performance — not self-reported screenshots',  bold: true  },
+  { text: '4% platform fee on success only — zero cost if the campaign underperforms',     bold: false },
+  { text: '$2.4M+ in verified deal volume processed on Solana',                            bold: true  },
+  { text: 'Platinum KOLs unlock unlimited deal budgets and exclusive platform deals',      bold: false },
+  { text: 'On-chain dispute resolution — full audit trail, zero trust required',           bold: true  },
+  { text: 'Performance is the only currency in the Vault',                                 bold: false },
+]
+
+function HeroMarquee() {
+  const doubled = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS]
+  return (
+    <div className="relative overflow-hidden border-y border-border bg-bg-surface" style={{ background: 'linear-gradient(180deg, #0C0018 0%, #06000C 100%)' }}>
+      {/* Left + right fade */}
+      <div className="absolute left-0 top-0 bottom-0 w-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #06000C, transparent)' }} />
+      <div className="absolute right-0 top-0 bottom-0 w-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #06000C, transparent)' }} />
+      {/* Track */}
+      <div className="flex py-3 animate-ticker whitespace-nowrap" style={{ width: 'max-content' }}>
+        {doubled.map((item, i) => (
+          <div key={i} className="flex items-center shrink-0">
+            {/* Separator */}
+            <span className="mx-6 text-accent opacity-40 text-xs select-none">◈</span>
+            {/* Text */}
+            <span
+              className="text-[12px] tracking-wide"
+              style={{ color: item.bold ? '#FFFFFF' : '#9B7EC8', fontWeight: item.bold ? 500 : 400 }}
+            >
+              {item.text}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 /* ─── Hero: Deep Space Bloomberg ─────────────────────────────────────────── */
 function HeroAurora() {
@@ -478,11 +517,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* STAT BAR */}
-      <section className="border-y border-border relative overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 200% at 50% 50%, rgba(123,47,190,0.06) 0%, transparent 70%)' }} />
-        <div className="relative z-10"><StatBar /></div>
-      </section>
+      {/* MARQUEE */}
+      <HeroMarquee />
 
       {/* 1. THE PROBLEM */}
       <ProblemSection />
