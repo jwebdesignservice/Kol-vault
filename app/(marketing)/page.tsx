@@ -53,7 +53,7 @@ function ProblemSection() {
           <span className="text-[11px] tracking-widest uppercase mono" style={{ color: '#FF4466' }}>THE PROBLEM</span>
         </div>
         <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>
-          The crypto KOL market<br /><span style={{ color: '#FF4466' }}>is broken.</span>
+          The crypto KOL market<br /><span style={{ color: '#A855F7' }}>is broken.</span>
         </h2>
         <div className="grid grid-cols-3 gap-5">
           {problems.map((p) => (
@@ -81,7 +81,7 @@ function TwoSidesSection() {
           <div className="w-10 h-px bg-accent" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent">TWO SIDES. ONE VAULT.</span>
         </div>
-        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Built for both sides<br /><span style={{ color: '#9B7EC8' }}>of the deal.</span></h2>
+        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Built for both sides<br /><span style={{ color: '#A855F7' }}>of the deal.</span></h2>
       </div>
       {/* Contained split */}
       <div className="max-w-7xl mx-auto">
@@ -165,7 +165,7 @@ function ArchitectureSection() {
                 <span className="text-[11px] tracking-widest uppercase mono text-positive">THE ARCHITECTURE</span>
               </div>
               <h2 className="font-heading font-bold text-5xl leading-tight mb-6" style={{ color: '#FFFFFF' }}>
-                A marketplace<br />built for<br /><span style={{ color: '#22D3A0' }}>accountability.</span>
+                A marketplace<br />built for<br /><span style={{ color: '#A855F7' }}>accountability.</span>
               </h2>
               <p className="text-text-secondary text-base leading-relaxed mb-10">
                 Every transaction is on-chain. Every KPI verified by real data. Every payment automatic. No trust required.
@@ -241,7 +241,10 @@ function TiersSection() {
           <div className="w-10 h-px bg-accent-bright" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent-bright">KOL TIERS</span>
         </div>
-        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Four tiers.<br /><span style={{ color: '#A855F7' }}>Unlimited potential.</span></h2>
+        <h2 className="font-heading font-bold text-5xl mb-4" style={{ color: '#FFFFFF' }}>Four tiers.<br /><span style={{ color: '#A855F7' }}>Unlimited potential.</span></h2>
+        <p className="text-text-secondary text-lg max-w-2xl mb-16 leading-relaxed">
+          Your on-chain score compounds with every campaign. Higher tiers unlock bigger deal budgets, exclusive access, and platform recognition — all earned, never bought.
+        </p>
         {/* Staircase — align to bottom */}
         <div className="flex items-end gap-0">
           {tiers.map((tier, i) => (
@@ -365,7 +368,7 @@ export default function LandingPage() {
             <div>
               <p className="text-[11px] tracking-widest uppercase text-accent mb-4 mono">SOLANA · WEB3 MARKETING MARKETPLACE</p>
               <h1 className="font-heading font-bold text-6xl leading-tight mb-4" style={{ color: '#FFFFFF' }}>
-                TRACK ALPHA.<br /><span style={{ color: '#22D3A0' }}>VERIFY SIGNAL.</span><br /><span style={{ color: '#C084FC' }}>EARN FROM KOLS.</span>
+                TRACK ALPHA.<br /><span style={{ color: '#A855F7' }}>VERIFY SIGNAL.</span><br /><span style={{ color: '#C084FC' }}>EARN FROM KOLS.</span>
               </h1>
               <p className="text-text-secondary text-lg leading-relaxed max-w-lg">
                 The on-chain marketplace connecting crypto projects with proven KOLs. Real win rates, verified calls, Solana-powered escrow.
