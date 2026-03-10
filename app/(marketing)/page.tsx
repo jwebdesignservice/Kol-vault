@@ -11,79 +11,71 @@ const MOCK_LEADERBOARD = [
   { rank: 5, name: 'AltSeason',    handle: '@AltSeason_',   winRate: 64, roi: '+76%',  best: 'RNDR +640%' },
 ]
 
-/* ─── Hero: Particle Network ─────────────────────────────────────────────── */
+/* ─── Hero: Deep Space Bloomberg ─────────────────────────────────────────── */
 function HeroAurora() {
-  const nodes = [
-    { id: 'n1',  x: 160,  y: 200, r: 1,   c: '#7B2FBE', label: null,        d: '0s'   },
-    { id: 'n2',  x: 340,  y: 340, r: 1.5, c: '#A855F7', label: 'SCORE: 94', d: '0.6s' },
-    { id: 'n3',  x: 520,  y: 150, r: 1,   c: '#22D3A0', label: null,        d: '1s'   },
-    { id: 'n4',  x: 680,  y: 300, r: 2,   c: '#A855F7', label: 'ROI +187%', d: '0.4s' },
-    { id: 'n5',  x: 860,  y: 160, r: 1,   c: '#7B2FBE', label: null,        d: '0.9s' },
-    { id: 'n6',  x: 1020, y: 310, r: 2,   c: '#22D3A0', label: 'WIN 76%',   d: '1.3s' },
-    { id: 'n7',  x: 1180, y: 165, r: 1,   c: '#7B2FBE', label: null,        d: '0.5s' },
-    { id: 'n8',  x: 1340, y: 300, r: 1.5, c: '#C084FC', label: 'PLATINUM',  d: '1s'   },
-    { id: 'n9',  x: 240,  y: 520, r: 1,   c: '#22D3A0', label: null,        d: '1.6s' },
-    { id: 'n10', x: 460,  y: 620, r: 1.5, c: '#7B2FBE', label: '$2.4M',     d: '0.2s' },
-    { id: 'n11', x: 640,  y: 490, r: 1,   c: '#A855F7', label: null,        d: '0.8s' },
-    { id: 'n12', x: 840,  y: 600, r: 1,   c: '#22D3A0', label: null,        d: '1.2s' },
-    { id: 'n13', x: 1010, y: 510, r: 1.5, c: '#A855F7', label: '847 KOLS',  d: '0.7s' },
-    { id: 'n14', x: 1190, y: 610, r: 1,   c: '#7B2FBE', label: null,        d: '1.5s' },
-    { id: 'n15', x: 1370, y: 470, r: 1,   c: '#22D3A0', label: null,        d: '0.1s' },
-  ]
-  const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n])) as Record<string, typeof nodes[number]>
-  const connections: [string, string][] = [
-    ['n1','n2'],  ['n2','n3'],  ['n3','n4'],  ['n4','n5'],  ['n5','n6'],  ['n6','n7'],  ['n7','n8'],
-    ['n1','n9'],  ['n2','n10'], ['n4','n11'], ['n6','n13'], ['n8','n15'],
-    ['n9','n10'], ['n10','n11'],['n11','n12'],['n12','n13'],['n13','n14'],['n14','n15'],
-    ['n4','n6'],
-  ]
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      {/* Ambient purple glow — subtle */}
-      <div className="absolute inset-0 aurora-glow" style={{ background: 'radial-gradient(ellipse 65% 45% at 50% 5%, rgba(123,47,190,0.22) 0%, transparent 60%)' }} />
-      {/* Fine grid */}
-      <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(123,47,190,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,190,0.04) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
-      {/* Particle network SVG — fades out on the left via mask */}
+
+      {/* ── Layer 1: Primary nebula — large, top-right, animated drift ── */}
+      <div className="absolute inset-0 aurora-glow" style={{
+        background: [
+          'radial-gradient(ellipse 60% 70% at 78% 0%, rgba(123,47,190,0.55) 0%, rgba(123,47,190,0.18) 40%, transparent 65%)',
+          'radial-gradient(ellipse 35% 50% at 100% 50%, rgba(168,85,247,0.2) 0%, transparent 55%)',
+        ].join(','),
+      }} />
+
+      {/* ── Layer 2: Secondary soft bloom — bottom-left depth ── */}
+      <div className="absolute inset-0 aurora-glow-slow" style={{
+        background: 'radial-gradient(ellipse 45% 40% at -5% 95%, rgba(123,47,190,0.18) 0%, transparent 55%)',
+      }} />
+
+      {/* ── Layer 3: Star field via SVG tiling pattern ── */}
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" fill="none">
         <defs>
-          {/* Gradient mask: invisible on far-left, fully visible right-of-center */}
-          <linearGradient id="netFade" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%"   stopColor="white" stopOpacity="0"   />
-            <stop offset="35%"  stopColor="white" stopOpacity="0.4" />
-            <stop offset="55%"  stopColor="white" stopOpacity="1"   />
-            <stop offset="100%" stopColor="white" stopOpacity="1"   />
+          {/* Repeating star tile — 12 stars at varied positions, sizes, colours */}
+          <pattern id="starfield" x="0" y="0" width="220" height="220" patternUnits="userSpaceOnUse">
+            <circle cx="14"  cy="32"  r="0.7" fill="#FFFFFF" opacity="0.22" />
+            <circle cx="58"  cy="88"  r="0.5" fill="#FFFFFF" opacity="0.18" />
+            <circle cx="102" cy="16"  r="1.0" fill="#C084FC" opacity="0.38" />
+            <circle cx="148" cy="122" r="0.6" fill="#FFFFFF" opacity="0.2"  />
+            <circle cx="32"  cy="168" r="0.8" fill="#FFFFFF" opacity="0.25" />
+            <circle cx="188" cy="62"  r="0.5" fill="#FFFFFF" opacity="0.16" />
+            <circle cx="78"  cy="178" r="0.9" fill="#A855F7" opacity="0.28" />
+            <circle cx="170" cy="145" r="0.7" fill="#FFFFFF" opacity="0.2"  />
+            <circle cx="48"  cy="44"  r="0.5" fill="#22D3A0" opacity="0.22" />
+            <circle cx="118" cy="82"  r="0.6" fill="#FFFFFF" opacity="0.22" />
+            <circle cx="196" cy="10"  r="0.8" fill="#FFFFFF" opacity="0.16" />
+            <circle cx="6"   cy="118" r="0.5" fill="#FFFFFF" opacity="0.18" />
+            <circle cx="210" cy="195" r="0.6" fill="#C084FC" opacity="0.2"  />
+            <circle cx="88"  cy="140" r="0.4" fill="#FFFFFF" opacity="0.15" />
+          </pattern>
+
+          {/* Vignette mask: fade stars toward top (where nebula dominates) */}
+          <linearGradient id="starVignette" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stopColor="black" stopOpacity="0.7" />
+            <stop offset="30%"  stopColor="black" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="black" stopOpacity="0"   />
           </linearGradient>
-          <mask id="netMask">
-            <rect width="1440" height="820" fill="url(#netFade)" />
+          <mask id="starMask">
+            <rect width="1440" height="820" fill="white" />
+            <rect width="1440" height="820" fill="url(#starVignette)" />
           </mask>
         </defs>
-        <g mask="url(#netMask)">
-          {/* Connection lines */}
-          {connections.map(([a, b], i) => {
-            const na = nodeMap[a], nb = nodeMap[b]
-            if (!na || !nb) return null
-            return (
-              <line
-                key={`${a}-${b}`}
-                x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
-                stroke="#7B2FBE"
-                strokeWidth="0.4"
-                style={{ animation: `line-fade ${3 + (i % 3)}s ease-in-out ${((i * 0.22) % 2).toFixed(2)}s infinite` }}
-              />
-            )
-          })}
-          {/* Nodes */}
-          {nodes.map(n => (
-            <g key={n.id}>
-              <circle cx={n.x} cy={n.y} r={n.r * 4} fill={n.c} style={{ animation: `halo-pulse ${2.5 + parseFloat(n.d)}s ease-in-out ${n.d} infinite` }} />
-              <circle cx={n.x} cy={n.y} r={n.r} fill={n.c} opacity={0.6} />
-              {n.label && (
-                <text x={n.x + n.r + 7} y={n.y + 4} fontSize="8" fill={n.c} opacity={0.3} fontFamily="monospace" letterSpacing="1">{n.label}</text>
-              )}
-            </g>
-          ))}
-        </g>
+
+        {/* Stars with top vignette so they don't compete with the nebula */}
+        <rect width="1440" height="820" fill="url(#starfield)" mask="url(#starMask)" />
+
+        {/* A few accent rings — glowing arcs behind the leaderboard area */}
+        <circle cx="1160" cy="180" r="320" stroke="#7B2FBE" strokeWidth="0.4" opacity="0.12" />
+        <circle cx="1160" cy="180" r="220" stroke="#A855F7" strokeWidth="0.3" opacity="0.09" />
+        <circle cx="1160" cy="180" r="420" stroke="#7B2FBE" strokeWidth="0.3" opacity="0.06" />
       </svg>
+
+      {/* ── Layer 4: Subtle scan lines (horizontal rule texture) ── */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(123,47,190,0.015) 3px, rgba(123,47,190,0.015) 4px)',
+      }} />
+
     </div>
   )
 }
