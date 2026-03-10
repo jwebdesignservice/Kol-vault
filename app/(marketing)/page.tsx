@@ -45,7 +45,7 @@ function ProblemSection() {
     { n: '03', title: 'TRUST OR NOTHING',      body: "The entire KOL market runs on personal trust and Telegram DMs. No standardised contracts, no escrow, no proof of delivery at any scale." },
   ]
   return (
-    <section className="relative overflow-hidden" style={{ background: '#05000F' }}>
+    <section className="relative overflow-hidden" style={{ background: '#04000A' }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(255,68,102,0.07) 0%, transparent 60%)' }} />
       <div className="max-w-7xl mx-auto px-8 py-20">
         <div className="flex items-center gap-4 mb-10">
@@ -87,7 +87,7 @@ function TwoSidesSection() {
       <div className="max-w-7xl mx-auto">
       <div className="flex" style={{ minHeight: 420 }}>
         {/* Projects — left */}
-        <div className="flex-1 relative overflow-hidden" style={{ background: '#100020' }}>
+        <div className="flex-1 relative overflow-hidden" style={{ background: '#0C0018' }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 80% at 0% 60%, rgba(123,47,190,0.18) 0%, transparent 60%)' }} />
           <div className="relative px-16 py-12 h-full border-t border-b border-l border-border">
             <div className="inline-flex items-center gap-2 px-3 py-1 border border-accent text-[10px] tracking-widest mono text-accent mb-10">FOR PROJECTS</div>
@@ -153,7 +153,7 @@ function ArchitectureSection() {
     { n: '06', title: 'AUTO-SETTLE',      desc: 'Success: USDC releases to KOL wallet instantly. Failure: funds return to project. All on Solana.' },
   ]
   return (
-    <section className="relative overflow-hidden border-y border-border" style={{ background: '#060012' }}>
+    <section className="relative overflow-hidden border-y border-border" style={{ background: '#050010' }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 50% 70% at 0% 50%, rgba(34,211,160,0.06) 0%, transparent 60%)' }} />
       <div className="max-w-7xl mx-auto px-8 py-20">
         <div className="grid grid-cols-12 gap-16">
@@ -172,19 +172,13 @@ function ArchitectureSection() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {[
-                { name: 'SOLANA',    color: '#C084FC' },
-                { name: 'USDC',      color: '#38BDF8' },
-                { name: 'HELIUS',    color: '#22D3A0' },
-                { name: 'SPL TOKEN', color: '#F59E0B' },
-                { name: 'AES-256',   color: '#F472B6' },
-              ].map(tag => (
+              {['SOLANA', 'USDC', 'HELIUS', 'SPL TOKEN', 'AES-256'].map(tag => (
                 <span
-                  key={tag.name}
+                  key={tag}
                   className="px-3 py-1 text-[10px] tracking-widest mono"
-                  style={{ border: `1px solid ${tag.color}40`, color: tag.color }}
+                  style={{ border: '1px solid rgba(192,132,252,0.25)', color: '#C084FC' }}
                 >
-                  {tag.name}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -290,13 +284,13 @@ function TiersSection() {
 /* ─── Section 5: TRUST ANCHORS (2×2 full-bleed grid) ────────────────────── */
 function TrustSection() {
   const anchors = [
-    { wm: '4%', label: 'SUCCESS-ONLY FEE',  body: '4% platform fee charged only on successful campaign completion. Zero cost if it fails.',          bg: '#100020', color: '#F59E0B' }, // amber — money/value
-    { wm: '∞',  label: 'USDC ESCROW',       body: 'Solana-powered non-custodial escrow. Funds held securely and released only when KPIs are met.',   bg: '#0A0010', color: '#38BDF8' }, // electric — crypto/solana
-    { wm: '↗',  label: 'ON-CHAIN VERIFIED', body: 'Every KPI checked against real Helius blockchain data. No self-reporting. No fake screenshots.',  bg: '#0A0010', color: '#22D3A0' }, // teal — verification
-    { wm: '⚖',  label: 'DISPUTE PROTECTION',body: 'Admin-mediated resolution for every contested campaign. Full audit trail on-chain, always.',      bg: '#100020', color: '#818CF8' }, // indigo — authority
+    { wm: '4%', label: 'SUCCESS-ONLY FEE',   body: '4% platform fee charged only on successful campaign completion. Zero cost if it fails.',         bg: '#0C0018' },
+    { wm: '∞',  label: 'USDC ESCROW',        body: 'Solana-powered non-custodial escrow. Funds held securely and released only when KPIs are met.',  bg: '#06000C' },
+    { wm: '↗',  label: 'ON-CHAIN VERIFIED',  body: 'Every KPI checked against real Helius blockchain data. No self-reporting. No fake screenshots.', bg: '#06000C' },
+    { wm: '⚖',  label: 'DISPUTE PROTECTION', body: 'Admin-mediated resolution for every contested campaign. Full audit trail on-chain, always.',     bg: '#0C0018' },
   ]
   return (
-    <section className="border-t border-border" style={{ background: '#08000E' }}>
+    <section className="border-t border-border" style={{ background: '#05000A' }}>
       {/* Section header */}
       <div className="max-w-7xl mx-auto px-8 py-16 border-b border-border-muted">
         <div className="flex items-center gap-4 mb-6">
@@ -304,36 +298,30 @@ function TrustSection() {
           <span className="text-[11px] tracking-widest uppercase mono text-accent">PLATFORM GUARANTEES</span>
         </div>
         <h2 className="font-heading font-bold text-5xl" style={{ color: '#FFFFFF' }}>
-          Built on trust.<br /><span style={{ color: '#22D3A0' }}>Enforced on-chain.</span>
+          Built on trust.<br /><span style={{ color: '#A855F7' }}>Enforced on-chain.</span>
         </h2>
       </div>
       {/* 2×2 grid */}
-      <div className="grid grid-cols-2">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 border border-border-muted">
         {anchors.map((a, i) => (
           <div
             key={a.label}
             className="relative overflow-hidden px-14 py-16"
             style={{
               background: a.bg,
-              borderRight: i % 2 === 0 ? '1px solid rgba(45,14,90,0.5)' : undefined,
-              borderBottom: i < 2 ? '1px solid rgba(45,14,90,0.5)' : undefined,
-              borderTop: `2px solid ${a.color}`,
+              borderRight: i % 2 === 0 ? '1px solid rgba(45,14,90,0.4)' : undefined,
+              borderBottom: i < 2 ? '1px solid rgba(45,14,90,0.4)' : undefined,
             }}
           >
-            {/* Corner glow */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: `radial-gradient(ellipse 60% 60% at ${i % 2 === 0 ? '0%' : '100%'} 0%, ${a.color}0D 0%, transparent 60%)` }}
-            />
             {/* Watermark */}
             <div
-              className="absolute right-6 bottom-4 font-heading font-bold select-none pointer-events-none leading-none"
-              style={{ fontSize: '9rem', color: a.color, opacity: 0.08, fontFamily: 'var(--font-mono)' }}
+              className="absolute right-6 bottom-4 select-none pointer-events-none leading-none mono"
+              style={{ fontSize: '9rem', color: '#7B2FBE', opacity: 0.08 }}
             >
               {a.wm}
             </div>
             <div className="relative">
-              <p className="text-[10px] tracking-widest uppercase mono mb-5" style={{ color: a.color }}>— {a.label}</p>
+              <p className="text-[10px] tracking-widest uppercase mono mb-5 text-accent-bright">— {a.label}</p>
               <p className="text-xl leading-relaxed font-body max-w-sm" style={{ color: '#FFFFFF' }}>{a.body}</p>
             </div>
           </div>
@@ -390,7 +378,7 @@ export default function LandingPage() {
             <div className="flex gap-8">
               {[
                 { label: 'KOLs Tracked',    value: '847+',  color: '#C084FC' },
-                { label: 'Platform Volume', value: '$2.4M', color: '#F59E0B' },
+                { label: 'Platform Volume', value: '$2.4M', color: '#22D3A0' },
                 { label: 'Avg Win Rate',    value: '61.4%', color: '#22D3A0' },
               ].map(({ label, value, color }) => (
                 <div key={label}>

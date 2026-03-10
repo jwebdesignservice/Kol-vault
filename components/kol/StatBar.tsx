@@ -10,12 +10,12 @@ interface Stat {
 }
 
 const STATS: Stat[] = [
-  { label: 'KOLS TRACKED',    value: 847,     format: (v) => v.toLocaleString(),              color: '#C084FC' }, // purple-glow
-  { label: 'CALLS THIS WEEK', value: 3241,    format: (v) => v.toLocaleString(),              color: '#38BDF8' }, // electric blue
-  { label: 'AVG WIN RATE',    value: 614,     format: (v) => `${(v / 10).toFixed(1)}%`,       color: '#22D3A0' }, // teal
-  { label: 'TOP ROI',         value: 4200,    format: (v) => `+${v.toLocaleString()}%`,       color: '#F59E0B' }, // amber/gold
-  { label: 'ACTIVE DEALS',    value: 34,      format: (v) => v.toLocaleString(),              color: '#F472B6' }, // rose
-  { label: 'PLATFORM VOLUME', value: 2400000, format: (v) => `$${(v / 1000000).toFixed(1)}M`, color: '#818CF8' }, // indigo
+  { label: 'KOLS TRACKED',    value: 847,     format: (v) => v.toLocaleString(),               color: '#C084FC' }, // purple
+  { label: 'CALLS THIS WEEK', value: 3241,    format: (v) => v.toLocaleString(),               color: '#22D3A0' }, // teal
+  { label: 'AVG WIN RATE',    value: 614,     format: (v) => `${(v / 10).toFixed(1)}%`,        color: '#C084FC' }, // purple
+  { label: 'TOP ROI',         value: 4200,    format: (v) => `+${v.toLocaleString()}%`,        color: '#22D3A0' }, // teal
+  { label: 'ACTIVE DEALS',    value: 34,      format: (v) => v.toLocaleString(),               color: '#C084FC' }, // purple
+  { label: 'PLATFORM VOLUME', value: 2400000, format: (v) => `$${(v / 1000000).toFixed(1)}M`, color: '#22D3A0' }, // teal
 ]
 
 function StatItem({ stat }: { stat: Stat }) {

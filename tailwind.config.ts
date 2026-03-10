@@ -12,9 +12,9 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#0A0010',
-          surface: '#100020',
-          elevated: '#15002E',
+          DEFAULT: '#06000C',
+          surface: '#0C0018',
+          elevated: '#10001E',
         },
         accent: {
           DEFAULT: '#7B2FBE',

@@ -9,7 +9,7 @@
 
 html,
 body {
-  background: #0A0010;
+  background: #06000C;
   color: #FFFFFF;
   margin: 0;
   padding: 0;
@@ -89,7 +89,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #100020;
+  background: #0C0018;
 }
 
 ::-webkit-scrollbar-thumb {
