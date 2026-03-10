@@ -433,7 +433,28 @@ export default function LandingPage() {
       {/* NAV */}
       <nav className="border-b border-border px-8 relative z-20">
         <div className="max-w-7xl mx-auto flex items-center justify-between py-4">
-          <span className="font-heading font-bold text-lg tracking-wider"><span className="text-accent">◈</span> KOLVAULT</span>
+          {/* Logo */}
+          <Link href="/" className="font-heading font-bold text-lg tracking-wider hover:opacity-80 transition-opacity">
+            <span className="text-accent">◈</span> KOLVAULT
+          </Link>
+          {/* Centre links */}
+          <div className="flex items-center gap-8">
+            {[
+              { label: 'LEADERBOARD', href: '/leaderboard' },
+              { label: 'DEALS',       href: '/deals'       },
+              { label: 'DASHBOARD',   href: '/dashboard'   },
+              { label: 'TIERS',       href: '/#tiers'      },
+            ].map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                className="text-[11px] tracking-widest mono text-text-secondary hover:text-text-primary transition-colors duration-150"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+          {/* CTAs */}
           <div className="flex items-center gap-4">
             <Link href="/login"><Button variant="ghost" size="sm">SIGN IN</Button></Link>
             <Link href="/register"><Button variant="primary" size="sm">LAUNCH APP</Button></Link>
@@ -548,10 +569,86 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-border px-8 py-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <span className="font-heading font-bold text-sm"><span className="text-accent">◈</span> KOLVAULT</span>
-          <span className="text-text-muted text-[11px] mono">© 2026 KOLVAULT. SOLANA-POWERED.</span>
+      <footer className="border-t border-border px-8 pt-16 pb-8" style={{ background: '#04000A' }}>
+        <div className="max-w-7xl mx-auto">
+          {/* Top row — logo + columns */}
+          <div className="grid grid-cols-12 gap-12 mb-16">
+            {/* Brand */}
+            <div className="col-span-4">
+              <div className="font-heading font-bold text-lg tracking-wider mb-4">
+                <span className="text-accent">◈</span> KOLVAULT
+              </div>
+              <p className="text-text-secondary text-sm leading-relaxed max-w-xs">
+                The on-chain marketplace connecting crypto projects with proven KOLs. Real win rates, verified calls, Solana-powered escrow.
+              </p>
+            </div>
+
+            {/* Platform */}
+            <div className="col-span-2">
+              <p className="text-[10px] tracking-widest uppercase mono text-accent mb-5">PLATFORM</p>
+              <div className="flex flex-col gap-3">
+                {[
+                  { label: 'Leaderboard', href: '/leaderboard' },
+                  { label: 'Open Deals',  href: '/deals'       },
+                  { label: 'Dashboard',   href: '/dashboard'   },
+                  { label: 'Launch App',  href: '/register'    },
+                ].map(({ label, href }) => (
+                  <Link key={label} href={href} className="text-text-secondary text-sm hover:text-text-primary transition-colors">{label}</Link>
+                ))}
+              </div>
+            </div>
+
+            {/* For KOLs */}
+            <div className="col-span-2">
+              <p className="text-[10px] tracking-widest uppercase mono text-accent mb-5">FOR KOLS</p>
+              <div className="flex flex-col gap-3">
+                {[
+                  { label: 'Join as a KOL',  href: '/register'    },
+                  { label: 'Score System',   href: '/#tiers'      },
+                  { label: 'Apply to Deals', href: '/deals'       },
+                  { label: 'KOL Tiers',      href: '/#tiers'      },
+                ].map(({ label, href }) => (
+                  <Link key={label} href={href} className="text-text-secondary text-sm hover:text-text-primary transition-colors">{label}</Link>
+                ))}
+              </div>
+            </div>
+
+            {/* For Projects */}
+            <div className="col-span-2">
+              <p className="text-[10px] tracking-widest uppercase mono text-accent mb-5">FOR PROJECTS</p>
+              <div className="flex flex-col gap-3">
+                {[
+                  { label: 'Post a Deal',   href: '/deals/create' },
+                  { label: 'Browse KOLs',  href: '/leaderboard'  },
+                  { label: 'How Escrow Works', href: '/#architecture' },
+                  { label: 'Pricing',      href: '/#tiers'       },
+                ].map(({ label, href }) => (
+                  <Link key={label} href={href} className="text-text-secondary text-sm hover:text-text-primary transition-colors">{label}</Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div className="col-span-2">
+              <p className="text-[10px] tracking-widest uppercase mono text-accent mb-5">LEGAL</p>
+              <div className="flex flex-col gap-3">
+                {[
+                  { label: 'Terms of Service', href: '#' },
+                  { label: 'Privacy Policy',   href: '#' },
+                  { label: 'Cookie Policy',    href: '#' },
+                  { label: 'Contact Us',       href: '#' },
+                ].map(({ label, href }) => (
+                  <Link key={label} href={href} className="text-text-secondary text-sm hover:text-text-primary transition-colors">{label}</Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="border-t border-border-muted pt-6 flex items-center justify-between">
+            <span className="text-text-muted text-[11px] mono">© 2026 KOLVAULT. ALL RIGHTS RESERVED.</span>
+            <span className="text-text-muted text-[11px] mono">BUILT ON <span className="text-accent">SOLANA</span></span>
+          </div>
         </div>
       </footer>
     </div>
