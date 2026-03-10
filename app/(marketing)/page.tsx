@@ -84,7 +84,7 @@ function ProblemSection() {
 function TwoSidesSection() {
   return (
     <section className="relative overflow-hidden bg-bg">
-      <div className="max-w-7xl mx-auto px-8 pt-20 pb-0">
+      <div className="px-8 pt-20 pb-0">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-10 h-px bg-accent" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent">TWO SIDES. ONE VAULT.</span>
