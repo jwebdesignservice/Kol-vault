@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { StatBar } from '@/components/kol/StatBar'
-import { StatCard } from '@/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
-import { BarChart2, Shield, Zap } from 'lucide-react'
 
 /* ─── Mock data ──────────────────────────────────────────────────────────── */
 const MOCK_LEADERBOARD = [
@@ -11,12 +9,6 @@ const MOCK_LEADERBOARD = [
   { rank: 3, name: 'WhaleWatcher', handle: '@WhaleWatch',   winRate: 68, roi: '+98%',  best: 'JTO +920%' },
   { rank: 4, name: 'CryptoOracle', handle: '@CryptoOracle', winRate: 66, roi: '+211%', best: 'PYTH +780%' },
   { rank: 5, name: 'AltSeason',    handle: '@AltSeason_',   winRate: 64, roi: '+76%',  best: 'RNDR +640%' },
-]
-
-const FEATURES = [
-  { icon: BarChart2, title: 'TRACK ALPHA',         desc: 'Follow every on-chain call. Real-time win rates, ROI tracking, and performance history across all KOLs.', clip: 'tr' as const, col: 'col-span-8' },
-  { icon: Shield,    title: 'VERIFY PERFORMANCE',  desc: 'On-chain proof. No fake screenshots. Every call is timestamped and verified against chain data.',           clip: 'none' as const, col: 'col-span-4' },
-  { icon: Zap,       title: 'STAKE ON SIGNAL',     desc: 'KOLs stake reputation on their calls. Projects fund verified campaigns with Solana escrow.',                clip: 'bl' as const, col: 'col-span-4' },
 ]
 
 /* ─── Aurora backgrounds ─────────────────────────────────────────────────── */
@@ -333,16 +325,6 @@ function TrustSection() {
   )
 }
 
-/* ─── Features aurora ────────────────────────────────────────────────────── */
-function FeaturesAurora() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      <div className="absolute inset-0 aurora-glow-slow" style={{ background: ['radial-gradient(ellipse 55% 70% at 100% 0%, rgba(123,47,190,0.22) 0%, transparent 60%)', 'radial-gradient(ellipse 40% 50% at 0% 100%, rgba(34,211,160,0.07) 0%, transparent 55%)'].join(',') }} />
-      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(123,47,190,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,190,0.06) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-    </div>
-  )
-}
-
 /* ─── CTA aurora ─────────────────────────────────────────────────────────── */
 function CTAAurora() {
   return (
@@ -441,27 +423,6 @@ export default function LandingPage() {
 
       {/* 2. TWO SIDES */}
       <TwoSidesSection />
-
-      {/* FEATURES */}
-      <section className="relative overflow-hidden px-8 py-20 bg-bg">
-        <FeaturesAurora />
-        <div className="relative z-10 max-w-7xl mx-auto">
-          <p className="text-[11px] tracking-widest uppercase text-accent mono mb-3">PLATFORM FEATURES</p>
-          <h2 className="font-heading font-bold text-4xl text-text-primary mb-12">BUILT FOR ALPHA.</h2>
-          <div className="grid grid-cols-12 gap-4">
-            {FEATURES.map(({ icon: Icon, title, desc, clip, col }) => (
-              <div key={title} className={col}>
-                <StatCard label="" value="" clipCorner={clip} icon={<Icon size={24} />} className="h-full p-6">
-                  <div className="flex flex-col gap-3 mt-2">
-                    <h3 className="font-heading font-bold text-xl text-text-primary">{title}</h3>
-                    <p className="text-text-secondary text-sm leading-relaxed">{desc}</p>
-                  </div>
-                </StatCard>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 3. VAULT ARCHITECTURE */}
       <ArchitectureSection />
