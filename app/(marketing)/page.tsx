@@ -75,7 +75,7 @@ function ProblemSection() {
 /* ─── Section 2: TWO SIDES ───────────────────────────────────────────────── */
 function TwoSidesSection() {
   return (
-    <section className="relative overflow-hidden bg-bg">
+    <section className="relative overflow-hidden bg-bg pb-20">
       <div className="max-w-7xl mx-auto px-8 pt-20 pb-0">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-10 h-px bg-accent" />
