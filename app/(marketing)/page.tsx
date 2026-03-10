@@ -209,25 +209,25 @@ function TiersSection() {
   const tiers = [
     {
       label: 'BRONZE', n: 'TIER 01', range: '0–39',
-      color: '#F59E0B', bg: 'rgba(245,158,11,0.05)',
+      color: '#CD7F32', bg: 'rgba(205,127,50,0.06)',
       unlocks: ['Deals up to $2,500', 'Basic leaderboard listing', 'Standard application queue'],
       minH: 300,
     },
     {
       label: 'SILVER', n: 'TIER 02', range: '40–59',
-      color: '#9B7EC8', bg: 'rgba(155,126,200,0.06)',
+      color: '#A8A9AD', bg: 'rgba(168,169,173,0.06)',
       unlocks: ['Deals up to $10,000', 'Verified badge on profile', 'Priority applications', 'Analytics access'],
       minH: 380,
     },
     {
       label: 'GOLD', n: 'TIER 03', range: '60–79',
-      color: '#A855F7', bg: 'rgba(168,85,247,0.08)',
+      color: '#D4AF37', bg: 'rgba(212,175,55,0.06)',
       unlocks: ['Deals up to $25,000', 'Featured on leaderboard', 'Invite-only deal access', 'Direct project contact', 'Custom rate setting'],
       minH: 460,
     },
     {
       label: 'PLATINUM', n: 'TIER 04', range: '80–100',
-      color: '#C084FC', bg: 'rgba(192,132,252,0.10)',
+      color: '#E2E8F0', bg: 'rgba(226,232,240,0.06)',
       unlocks: ['Unlimited deal budgets', 'Top of leaderboard', 'Platform partnership deals', 'Revenue share ops', 'White-glove support', 'KOL Vault Verified seal'],
       minH: 540,
     },
@@ -241,7 +241,7 @@ function TiersSection() {
           <div className="w-10 h-px bg-accent-bright" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent-bright">KOL TIERS</span>
         </div>
-        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Four tiers.<br /><span style={{ color: '#F59E0B' }}>Unlimited potential.</span></h2>
+        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Four tiers.<br /><span style={{ color: '#A855F7' }}>Unlimited potential.</span></h2>
         {/* Staircase — align to bottom */}
         <div className="flex items-end gap-0">
           {tiers.map((tier, i) => (
