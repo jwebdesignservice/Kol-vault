@@ -290,25 +290,25 @@ function TiersSection() {
   const tiers = [
     {
       label: 'BRONZE', n: 'TIER 01', range: '0–39',
-      color: '#CD7F32', bg: 'rgba(205,127,50,0.06)',
+      color: '#CD7F32', bg: '#12080E',
       unlocks: ['Deals up to $2,500', 'Basic leaderboard listing', 'Standard application queue'],
       minH: 300,
     },
     {
       label: 'SILVER', n: 'TIER 02', range: '40–59',
-      color: '#A8A9AD', bg: 'rgba(168,169,173,0.06)',
+      color: '#A8A9AD', bg: '#100A16',
       unlocks: ['Deals up to $10,000', 'Verified badge on profile', 'Priority applications', 'Analytics access'],
       minH: 380,
     },
     {
       label: 'GOLD', n: 'TIER 03', range: '60–79',
-      color: '#D4AF37', bg: 'rgba(212,175,55,0.06)',
+      color: '#D4AF37', bg: '#120B0F',
       unlocks: ['Deals up to $25,000', 'Featured on leaderboard', 'Invite-only deal access', 'Direct project contact', 'Custom rate setting'],
       minH: 460,
     },
     {
       label: 'PLATINUM', n: 'TIER 04', range: '80–100',
-      color: '#7DD3FC', bg: 'rgba(125,211,252,0.06)',
+      color: '#7DD3FC', bg: '#0D0D1A',
       unlocks: ['Unlimited deal budgets', 'Top of leaderboard', 'Platform partnership deals', 'Revenue share ops', 'White-glove support', 'KOL Vault Verified seal'],
       minH: 540,
     },
