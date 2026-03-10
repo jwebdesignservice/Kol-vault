@@ -308,7 +308,7 @@ function TiersSection() {
     },
     {
       label: 'PLATINUM', n: 'TIER 04', range: '80–100',
-      color: '#E2E8F0', bg: 'rgba(226,232,240,0.06)',
+      color: '#7DD3FC', bg: 'rgba(125,211,252,0.06)',
       unlocks: ['Unlimited deal budgets', 'Top of leaderboard', 'Platform partnership deals', 'Revenue share ops', 'White-glove support', 'KOL Vault Verified seal'],
       minH: 540,
     },

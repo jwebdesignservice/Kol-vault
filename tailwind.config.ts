@@ -76,7 +76,7 @@ const config: Config = {
       },
       animation: {
         shimmer: 'shimmer 1.5s infinite',
-        ticker: 'ticker 30s linear infinite',
+        ticker: 'ticker 50s linear infinite',
         pulse_dot: 'pulse_dot 1.5s ease-in-out infinite',
         fadeInDown: 'fadeInDown 0.2s ease',
       },
