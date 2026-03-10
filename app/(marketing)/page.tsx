@@ -268,13 +268,13 @@ function ArchitectureSection() {
           <div className="col-span-7 flex flex-col gap-0 self-center">
             {steps.map((step, i) => (
               <div key={step.n} className="group flex items-start gap-6 py-5 px-4 border-b border-border-muted hover:bg-bg-surface transition-colors duration-150 cursor-default">
-                <span className="text-positive mono text-sm font-bold shrink-0 w-8 mt-0.5">{step.n}</span>
+                <span className="text-accent-bright mono text-sm font-bold shrink-0 w-8 mt-0.5">{step.n}</span>
                 <div className="flex-1">
                   <p className="font-heading font-bold text-text-primary text-sm tracking-wide mb-1">{step.title}</p>
                   <p className="text-text-secondary text-sm leading-relaxed">{step.desc}</p>
                 </div>
                 {i === steps.length - 1 && (
-                  <span className="text-positive mono text-sm self-center" style={{ animation: 'pulse_dot 1s ease-in-out infinite' }}>▋</span>
+                  <span className="text-accent-bright mono text-sm self-center" style={{ animation: 'pulse_dot 1s ease-in-out infinite' }}>▋</span>
                 )}
               </div>
             ))}
@@ -482,12 +482,12 @@ export default function LandingPage() {
             </div>
             <div className="flex gap-8">
               {[
-                { label: 'KOLs Tracked',    value: '847+',  color: '#C084FC' },
-                { label: 'Platform Volume', value: '$2.4M', color: '#22D3A0' },
-                { label: 'Avg Win Rate',    value: '61.4%', color: '#22D3A0' },
-              ].map(({ label, value, color }) => (
+                { label: 'KOLs Tracked',    value: '847+'  },
+                { label: 'Platform Volume', value: '$2.4M' },
+                { label: 'Avg Win Rate',    value: '61.4%' },
+              ].map(({ label, value }) => (
                 <div key={label}>
-                  <div className="text-2xl font-bold mono" style={{ color, fontFamily: 'var(--font-mono)' }}>{value}</div>
+                  <div className="text-2xl font-bold mono" style={{ color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>{value}</div>
                   <div className="text-text-muted text-[11px] tracking-widest uppercase">{label}</div>
                 </div>
               ))}
