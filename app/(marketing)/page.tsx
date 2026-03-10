@@ -84,14 +84,15 @@ function ProblemSection() {
 function TwoSidesSection() {
   return (
     <section className="relative overflow-hidden bg-bg">
-      <div className="px-8 pt-20 pb-0">
+      <div className="max-w-7xl mx-auto px-8 pt-20 pb-0">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-10 h-px bg-accent" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent">TWO SIDES. ONE VAULT.</span>
         </div>
         <h2 className="font-heading font-bold text-5xl text-text-primary mb-16">Built for both sides<br />of the deal.</h2>
       </div>
-      {/* Full-bleed split */}
+      {/* Contained split */}
+      <div className="max-w-7xl mx-auto">
       <div className="flex" style={{ minHeight: 420 }}>
         {/* Projects — left */}
         <div className="flex-1 relative overflow-hidden" style={{ background: '#100020' }}>
@@ -143,6 +144,7 @@ function TwoSidesSection() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </section>
   )
