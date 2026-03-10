@@ -242,8 +242,8 @@ function ArchitectureSection() {
           <div className="col-span-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-10 h-px bg-positive" />
-                <span className="text-[11px] tracking-widest uppercase mono text-positive">THE ARCHITECTURE</span>
+                <div className="w-10 h-px bg-accent" />
+                <span className="text-[11px] tracking-widest uppercase mono text-accent">THE ARCHITECTURE</span>
               </div>
               <h2 className="font-heading font-bold text-5xl leading-tight mb-6" style={{ color: '#FFFFFF' }}>
                 A marketplace<br />built for<br /><span style={{ color: '#A855F7' }}>accountability.</span>
