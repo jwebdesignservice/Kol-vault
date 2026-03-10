@@ -145,10 +145,10 @@ table {
 
 /* Particle network animations */
 @keyframes line-fade {
-  0%, 100% { opacity: 0.05; }
-  50%       { opacity: 0.2;  }
+  0%, 100% { opacity: 0.04; }
+  50%       { opacity: 0.14; }
 }
 @keyframes halo-pulse {
   0%, 100% { opacity: 0;    }
-  50%       { opacity: 0.12; }
+  50%       { opacity: 0.08; }
 }

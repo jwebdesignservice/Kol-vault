@@ -14,21 +14,21 @@ const MOCK_LEADERBOARD = [
 /* ─── Hero: Particle Network ─────────────────────────────────────────────── */
 function HeroAurora() {
   const nodes = [
-    { id: 'n1',  x: 140,  y: 175, r: 2,   c: '#7B2FBE', label: null,        d: '0s'    },
-    { id: 'n2',  x: 325,  y: 295, r: 3.5, c: '#A855F7', label: 'SCORE: 94', d: '0.5s'  },
-    { id: 'n3',  x: 505,  y: 130, r: 1.5, c: '#22D3A0', label: null,        d: '1s'    },
-    { id: 'n4',  x: 700,  y: 265, r: 4,   c: '#A855F7', label: 'ROI +187%', d: '0.3s'  },
-    { id: 'n5',  x: 880,  y: 148, r: 2,   c: '#7B2FBE', label: null,        d: '0.8s'  },
-    { id: 'n6',  x: 1045, y: 298, r: 3.5, c: '#22D3A0', label: 'WIN 76%',   d: '1.2s'  },
-    { id: 'n7',  x: 1205, y: 150, r: 1.5, c: '#7B2FBE', label: null,        d: '0.4s'  },
-    { id: 'n8',  x: 1362, y: 278, r: 2.5, c: '#C084FC', label: 'PLATINUM',  d: '0.9s'  },
-    { id: 'n9',  x: 200,  y: 488, r: 1.5, c: '#22D3A0', label: null,        d: '1.5s'  },
-    { id: 'n10', x: 420,  y: 592, r: 3,   c: '#7B2FBE', label: '$2.4M',     d: '0.2s'  },
-    { id: 'n11', x: 625,  y: 462, r: 2,   c: '#A855F7', label: null,        d: '0.7s'  },
-    { id: 'n12', x: 820,  y: 572, r: 2,   c: '#22D3A0', label: null,        d: '1.1s'  },
-    { id: 'n13', x: 1002, y: 490, r: 3,   c: '#A855F7', label: '847 KOLS',  d: '0.6s'  },
-    { id: 'n14', x: 1182, y: 590, r: 1.5, c: '#7B2FBE', label: null,        d: '1.4s'  },
-    { id: 'n15', x: 1378, y: 452, r: 2,   c: '#22D3A0', label: null,        d: '0.1s'  },
+    { id: 'n1',  x: 160,  y: 200, r: 1,   c: '#7B2FBE', label: null,        d: '0s'   },
+    { id: 'n2',  x: 340,  y: 340, r: 1.5, c: '#A855F7', label: 'SCORE: 94', d: '0.6s' },
+    { id: 'n3',  x: 520,  y: 150, r: 1,   c: '#22D3A0', label: null,        d: '1s'   },
+    { id: 'n4',  x: 680,  y: 300, r: 2,   c: '#A855F7', label: 'ROI +187%', d: '0.4s' },
+    { id: 'n5',  x: 860,  y: 160, r: 1,   c: '#7B2FBE', label: null,        d: '0.9s' },
+    { id: 'n6',  x: 1020, y: 310, r: 2,   c: '#22D3A0', label: 'WIN 76%',   d: '1.3s' },
+    { id: 'n7',  x: 1180, y: 165, r: 1,   c: '#7B2FBE', label: null,        d: '0.5s' },
+    { id: 'n8',  x: 1340, y: 300, r: 1.5, c: '#C084FC', label: 'PLATINUM',  d: '1s'   },
+    { id: 'n9',  x: 240,  y: 520, r: 1,   c: '#22D3A0', label: null,        d: '1.6s' },
+    { id: 'n10', x: 460,  y: 620, r: 1.5, c: '#7B2FBE', label: '$2.4M',     d: '0.2s' },
+    { id: 'n11', x: 640,  y: 490, r: 1,   c: '#A855F7', label: null,        d: '0.8s' },
+    { id: 'n12', x: 840,  y: 600, r: 1,   c: '#22D3A0', label: null,        d: '1.2s' },
+    { id: 'n13', x: 1010, y: 510, r: 1.5, c: '#A855F7', label: '847 KOLS',  d: '0.7s' },
+    { id: 'n14', x: 1190, y: 610, r: 1,   c: '#7B2FBE', label: null,        d: '1.5s' },
+    { id: 'n15', x: 1370, y: 470, r: 1,   c: '#22D3A0', label: null,        d: '0.1s' },
   ]
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n])) as Record<string, typeof nodes[number]>
   const connections: [string, string][] = [
@@ -39,39 +39,50 @@ function HeroAurora() {
   ]
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      {/* Ambient purple glow */}
-      <div className="absolute inset-0 aurora-glow" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 8%, rgba(123,47,190,0.32) 0%, transparent 62%)' }} />
+      {/* Ambient purple glow — subtle */}
+      <div className="absolute inset-0 aurora-glow" style={{ background: 'radial-gradient(ellipse 65% 45% at 50% 5%, rgba(123,47,190,0.22) 0%, transparent 60%)' }} />
       {/* Fine grid */}
-      <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(123,47,190,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,190,0.05) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
-      {/* Particle network SVG */}
+      <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(123,47,190,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,190,0.04) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+      {/* Particle network SVG — fades out on the left via mask */}
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" fill="none">
-        {/* Connection lines */}
-        {connections.map(([a, b], i) => {
-          const na = nodeMap[a], nb = nodeMap[b]
-          if (!na || !nb) return null
-          return (
-            <line
-              key={`${a}-${b}`}
-              x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
-              stroke="#7B2FBE"
-              strokeWidth="0.6"
-              style={{ animation: `line-fade ${3 + (i % 3)}s ease-in-out ${((i * 0.22) % 2).toFixed(2)}s infinite` }}
-            />
-          )
-        })}
-        {/* Nodes */}
-        {nodes.map(n => (
-          <g key={n.id}>
-            {/* Halo */}
-            <circle cx={n.x} cy={n.y} r={n.r * 4} fill={n.c} style={{ animation: `halo-pulse ${2.5 + parseFloat(n.d)}s ease-in-out ${n.d} infinite` }} />
-            {/* Core */}
-            <circle cx={n.x} cy={n.y} r={n.r} fill={n.c} opacity={0.85} />
-            {/* Label */}
-            {n.label && (
-              <text x={n.x + n.r + 8} y={n.y + 4} fontSize="9" fill={n.c} opacity={0.45} fontFamily="monospace" letterSpacing="1">{n.label}</text>
-            )}
-          </g>
-        ))}
+        <defs>
+          {/* Gradient mask: invisible on far-left, fully visible right-of-center */}
+          <linearGradient id="netFade" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="white" stopOpacity="0"   />
+            <stop offset="35%"  stopColor="white" stopOpacity="0.4" />
+            <stop offset="55%"  stopColor="white" stopOpacity="1"   />
+            <stop offset="100%" stopColor="white" stopOpacity="1"   />
+          </linearGradient>
+          <mask id="netMask">
+            <rect width="1440" height="820" fill="url(#netFade)" />
+          </mask>
+        </defs>
+        <g mask="url(#netMask)">
+          {/* Connection lines */}
+          {connections.map(([a, b], i) => {
+            const na = nodeMap[a], nb = nodeMap[b]
+            if (!na || !nb) return null
+            return (
+              <line
+                key={`${a}-${b}`}
+                x1={na.x} y1={na.y} x2={nb.x} y2={nb.y}
+                stroke="#7B2FBE"
+                strokeWidth="0.4"
+                style={{ animation: `line-fade ${3 + (i % 3)}s ease-in-out ${((i * 0.22) % 2).toFixed(2)}s infinite` }}
+              />
+            )
+          })}
+          {/* Nodes */}
+          {nodes.map(n => (
+            <g key={n.id}>
+              <circle cx={n.x} cy={n.y} r={n.r * 4} fill={n.c} style={{ animation: `halo-pulse ${2.5 + parseFloat(n.d)}s ease-in-out ${n.d} infinite` }} />
+              <circle cx={n.x} cy={n.y} r={n.r} fill={n.c} opacity={0.6} />
+              {n.label && (
+                <text x={n.x + n.r + 7} y={n.y + 4} fontSize="8" fill={n.c} opacity={0.3} fontFamily="monospace" letterSpacing="1">{n.label}</text>
+              )}
+            </g>
+          ))}
+        </g>
       </svg>
     </div>
   )
