@@ -52,7 +52,7 @@ function ProblemSection() {
           <div className="w-10 h-px" style={{ background: '#FF4466' }} />
           <span className="text-[11px] tracking-widest uppercase mono" style={{ color: '#FF4466' }}>THE PROBLEM</span>
         </div>
-        <h2 className="font-heading font-bold text-5xl text-text-primary mb-16">
+        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>
           The crypto KOL market<br /><span style={{ color: '#FF4466' }}>is broken.</span>
         </h2>
         <div className="grid grid-cols-3 gap-5">
@@ -81,7 +81,7 @@ function TwoSidesSection() {
           <div className="w-10 h-px bg-accent" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent">TWO SIDES. ONE VAULT.</span>
         </div>
-        <h2 className="font-heading font-bold text-5xl text-text-primary mb-16">Built for both sides<br />of the deal.</h2>
+        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Built for both sides<br /><span style={{ color: '#9B7EC8' }}>of the deal.</span></h2>
       </div>
       {/* Contained split */}
       <div className="max-w-7xl mx-auto">
@@ -164,16 +164,28 @@ function ArchitectureSection() {
                 <div className="w-10 h-px bg-positive" />
                 <span className="text-[11px] tracking-widest uppercase mono text-positive">THE ARCHITECTURE</span>
               </div>
-              <h2 className="font-heading font-bold text-5xl text-text-primary leading-tight mb-6">
-                A marketplace<br />built for<br /><span className="text-positive">accountability.</span>
+              <h2 className="font-heading font-bold text-5xl leading-tight mb-6" style={{ color: '#FFFFFF' }}>
+                A marketplace<br />built for<br /><span style={{ color: '#22D3A0' }}>accountability.</span>
               </h2>
               <p className="text-text-secondary text-base leading-relaxed mb-10">
                 Every transaction is on-chain. Every KPI verified by real data. Every payment automatic. No trust required.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {['SOLANA', 'USDC', 'HELIUS', 'SPL TOKEN', 'AES-256'].map(tag => (
-                <span key={tag} className="px-3 py-1 border border-border-muted text-text-muted text-[10px] tracking-widest mono">{tag}</span>
+              {[
+                { name: 'SOLANA',    color: '#C084FC' },
+                { name: 'USDC',      color: '#38BDF8' },
+                { name: 'HELIUS',    color: '#22D3A0' },
+                { name: 'SPL TOKEN', color: '#F59E0B' },
+                { name: 'AES-256',   color: '#F472B6' },
+              ].map(tag => (
+                <span
+                  key={tag.name}
+                  className="px-3 py-1 text-[10px] tracking-widest mono"
+                  style={{ border: `1px solid ${tag.color}40`, color: tag.color }}
+                >
+                  {tag.name}
+                </span>
               ))}
             </div>
           </div>
@@ -235,7 +247,7 @@ function TiersSection() {
           <div className="w-10 h-px bg-accent-bright" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent-bright">KOL TIERS</span>
         </div>
-        <h2 className="font-heading font-bold text-5xl text-text-primary mb-16">Four tiers.<br />Unlimited potential.</h2>
+        <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Four tiers.<br /><span style={{ color: '#F59E0B' }}>Unlimited potential.</span></h2>
         {/* Staircase — align to bottom */}
         <div className="flex items-end gap-0">
           {tiers.map((tier, i) => (
@@ -278,10 +290,10 @@ function TiersSection() {
 /* ─── Section 5: TRUST ANCHORS (2×2 full-bleed grid) ────────────────────── */
 function TrustSection() {
   const anchors = [
-    { wm: '4%',  label: 'SUCCESS-ONLY FEE',      body: '4% platform fee charged only on successful campaign completion. Zero cost if it fails.',          bg: '#100020' },
-    { wm: '∞',   label: 'USDC ESCROW',            body: 'Solana-powered non-custodial escrow. Funds held securely and released only when KPIs are met.',   bg: '#0A0010' },
-    { wm: '↗',   label: 'ON-CHAIN VERIFIED',      body: 'Every KPI checked against real Helius blockchain data. No self-reporting. No fake screenshots.',  bg: '#0A0010' },
-    { wm: '⚖',   label: 'DISPUTE PROTECTION',     body: 'Admin-mediated resolution for every contested campaign. Full audit trail on-chain, always.',      bg: '#100020' },
+    { wm: '4%', label: 'SUCCESS-ONLY FEE',  body: '4% platform fee charged only on successful campaign completion. Zero cost if it fails.',          bg: '#100020', color: '#F59E0B' }, // amber — money/value
+    { wm: '∞',  label: 'USDC ESCROW',       body: 'Solana-powered non-custodial escrow. Funds held securely and released only when KPIs are met.',   bg: '#0A0010', color: '#38BDF8' }, // electric — crypto/solana
+    { wm: '↗',  label: 'ON-CHAIN VERIFIED', body: 'Every KPI checked against real Helius blockchain data. No self-reporting. No fake screenshots.',  bg: '#0A0010', color: '#22D3A0' }, // teal — verification
+    { wm: '⚖',  label: 'DISPUTE PROTECTION',body: 'Admin-mediated resolution for every contested campaign. Full audit trail on-chain, always.',      bg: '#100020', color: '#818CF8' }, // indigo — authority
   ]
   return (
     <section className="border-t border-border" style={{ background: '#08000E' }}>
@@ -291,8 +303,8 @@ function TrustSection() {
           <div className="w-10 h-px bg-accent" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent">PLATFORM GUARANTEES</span>
         </div>
-        <h2 className="font-heading font-bold text-5xl text-text-primary">
-          Built on trust.<br /><span className="text-accent">Enforced on-chain.</span>
+        <h2 className="font-heading font-bold text-5xl" style={{ color: '#FFFFFF' }}>
+          Built on trust.<br /><span style={{ color: '#22D3A0' }}>Enforced on-chain.</span>
         </h2>
       </div>
       {/* 2×2 grid */}
@@ -305,18 +317,24 @@ function TrustSection() {
               background: a.bg,
               borderRight: i % 2 === 0 ? '1px solid rgba(45,14,90,0.5)' : undefined,
               borderBottom: i < 2 ? '1px solid rgba(45,14,90,0.5)' : undefined,
+              borderTop: `2px solid ${a.color}`,
             }}
           >
+            {/* Corner glow */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: `radial-gradient(ellipse 60% 60% at ${i % 2 === 0 ? '0%' : '100%'} 0%, ${a.color}0D 0%, transparent 60%)` }}
+            />
             {/* Watermark */}
             <div
               className="absolute right-6 bottom-4 font-heading font-bold select-none pointer-events-none leading-none"
-              style={{ fontSize: '9rem', color: '#7B2FBE', opacity: 0.07, fontFamily: 'var(--font-mono)' }}
+              style={{ fontSize: '9rem', color: a.color, opacity: 0.08, fontFamily: 'var(--font-mono)' }}
             >
               {a.wm}
             </div>
             <div className="relative">
-              <p className="text-[10px] tracking-widest uppercase mono text-accent mb-5">— {a.label}</p>
-              <p className="text-text-primary text-xl leading-relaxed font-body max-w-sm">{a.body}</p>
+              <p className="text-[10px] tracking-widest uppercase mono mb-5" style={{ color: a.color }}>— {a.label}</p>
+              <p className="text-xl leading-relaxed font-body max-w-sm" style={{ color: '#FFFFFF' }}>{a.body}</p>
             </div>
           </div>
         ))}
@@ -358,8 +376,8 @@ export default function LandingPage() {
           <div className="col-span-7 flex flex-col justify-center gap-8">
             <div>
               <p className="text-[11px] tracking-widest uppercase text-accent mb-4 mono">SOLANA · WEB3 MARKETING MARKETPLACE</p>
-              <h1 className="font-heading font-bold text-6xl leading-tight text-text-primary mb-4">
-                TRACK ALPHA.<br /><span className="text-accent">VERIFY SIGNAL.</span><br />EARN FROM KOLS.
+              <h1 className="font-heading font-bold text-6xl leading-tight mb-4" style={{ color: '#FFFFFF' }}>
+                TRACK ALPHA.<br /><span style={{ color: '#22D3A0' }}>VERIFY SIGNAL.</span><br /><span style={{ color: '#C084FC' }}>EARN FROM KOLS.</span>
               </h1>
               <p className="text-text-secondary text-lg leading-relaxed max-w-lg">
                 The on-chain marketplace connecting crypto projects with proven KOLs. Real win rates, verified calls, Solana-powered escrow.
@@ -370,9 +388,13 @@ export default function LandingPage() {
               <Link href="/leaderboard"><Button variant="outline" size="lg">VIEW LEADERBOARD</Button></Link>
             </div>
             <div className="flex gap-8">
-              {[{ label: 'KOLs Tracked', value: '847+' }, { label: 'Platform Volume', value: '$2.4M' }, { label: 'Avg Win Rate', value: '61.4%' }].map(({ label, value }) => (
+              {[
+                { label: 'KOLs Tracked',    value: '847+',  color: '#C084FC' },
+                { label: 'Platform Volume', value: '$2.4M', color: '#F59E0B' },
+                { label: 'Avg Win Rate',    value: '61.4%', color: '#22D3A0' },
+              ].map(({ label, value, color }) => (
                 <div key={label}>
-                  <div className="stat-number text-2xl font-bold">{value}</div>
+                  <div className="text-2xl font-bold mono" style={{ color, fontFamily: 'var(--font-mono)' }}>{value}</div>
                   <div className="text-text-muted text-[11px] tracking-widest uppercase">{label}</div>
                 </div>
               ))}
@@ -395,11 +417,22 @@ export default function LandingPage() {
                 <tbody>
                   {MOCK_LEADERBOARD.map(row => (
                     <tr key={row.rank} className="border-b border-border-muted hover:bg-bg-elevated transition-colors">
-                      <td className="px-3 py-3"><span className={`mono text-[11px] font-bold ${row.rank <= 3 ? 'text-accent-bright' : 'text-text-muted'}`}>{row.rank <= 3 ? `#${row.rank}` : row.rank}</span></td>
-                      <td className="px-3 py-3"><div><p className="text-[12px] font-bold text-text-primary">{row.name}</p><p className="text-[10px] text-text-muted mono">{row.handle}</p></div></td>
-                      <td className="px-3 py-3"><span className={`mono text-[12px] font-bold ${row.winRate > 60 ? 'positive' : 'text-text-primary'}`}>{row.winRate}%</span></td>
+                      <td className="px-3 py-3">
+                        <span className="mono text-[11px] font-bold" style={{ color: row.rank <= 3 ? '#F59E0B' : '#4A3566' }}>
+                          {row.rank <= 3 ? `#${row.rank}` : row.rank}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <div>
+                          <p className="text-[12px] font-bold" style={{ color: '#FFFFFF' }}>{row.name}</p>
+                          <p className="text-[10px] text-text-muted mono">{row.handle}</p>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className="mono text-[12px] font-bold" style={{ color: row.winRate > 60 ? '#22D3A0' : '#9B7EC8' }}>{row.winRate}%</span>
+                      </td>
                       <td className="px-3 py-3"><span className="positive mono text-[12px]">{row.roi}</span></td>
-                      <td className="px-3 py-3"><span className="mono text-[10px] text-accent-glow">{row.best}</span></td>
+                      <td className="px-3 py-3"><span className="mono text-[10px]" style={{ color: '#38BDF8' }}>{row.best}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -437,8 +470,8 @@ export default function LandingPage() {
       <section className="relative overflow-hidden w-full px-8 py-24 text-center bg-bg">
         <CTAAurora />
         <div className="relative z-10 max-w-7xl mx-auto">
-          <h2 className="font-heading font-bold text-5xl text-text-primary mb-4">
-            READY TO TRACK<br /><span className="text-accent">REAL ALPHA?</span>
+          <h2 className="font-heading font-bold text-5xl mb-4" style={{ color: '#FFFFFF' }}>
+            READY TO TRACK<br /><span style={{ color: '#C084FC' }}>REAL ALPHA?</span>
           </h2>
           <p className="text-text-secondary mb-10 text-lg">Join 847 KOLs and 200+ projects on the only verified performance marketplace.</p>
           <Link href="/register"><Button variant="primary" size="lg">LAUNCH APP</Button></Link>

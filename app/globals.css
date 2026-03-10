@@ -10,7 +10,7 @@
 html,
 body {
   background: #0A0010;
-  color: #F0E6FF;
+  color: #FFFFFF;
   margin: 0;
   padding: 0;
 }
@@ -64,6 +64,22 @@ body {
 
 .negative {
   color: #FF4466;
+}
+
+.electric {
+  color: #38BDF8;
+}
+
+.rose-text {
+  color: #F472B6;
+}
+
+.indigo-text {
+  color: #818CF8;
+}
+
+.amber-text {
+  color: #F59E0B;
 }
 
 /* Scrollbar styling */
