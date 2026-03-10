@@ -63,7 +63,7 @@ function ProblemSection() {
         <h2 className="font-heading font-bold text-5xl text-text-primary mb-16">
           The crypto KOL market<br /><span style={{ color: '#FF4466' }}>is broken.</span>
         </h2>
-        <div className="grid grid-cols-3 gap-0">
+        <div className="grid grid-cols-3 gap-5">
           {problems.map((p) => (
             <div key={p.n} className="relative px-8 py-10 border border-border-muted" style={{ borderLeft: '3px solid #FF4466' }}>
               <div className="absolute right-4 top-2 font-heading font-bold leading-none select-none pointer-events-none mono" style={{ fontSize: '9rem', color: '#FF4466', opacity: 0.07 }}>{p.n}</div>
@@ -236,7 +236,7 @@ function TiersSection() {
     <section className="relative overflow-hidden bg-bg border-b border-border">
       {/* Horizontal grid lines */}
       <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 63px, rgba(45,14,90,0.25) 63px, rgba(45,14,90,0.25) 64px)' }} />
-      <div className="max-w-7xl mx-auto px-8 pt-20 pb-0">
+      <div className="max-w-7xl mx-auto px-8 pt-20 pb-20">
         <div className="flex items-center gap-4 mb-4">
           <div className="w-10 h-px bg-accent-bright" />
           <span className="text-[11px] tracking-widest uppercase mono text-accent-bright">KOL TIERS</span>
@@ -290,7 +290,18 @@ function TrustSection() {
     { wm: '⚖',   label: 'DISPUTE PROTECTION',     body: 'Admin-mediated resolution for every contested campaign. Full audit trail on-chain, always.',      bg: '#100020' },
   ]
   return (
-    <section className="border-t border-border">
+    <section className="border-t border-border" style={{ background: '#08000E' }}>
+      {/* Section header */}
+      <div className="max-w-7xl mx-auto px-8 py-16 border-b border-border-muted">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-10 h-px bg-accent" />
+          <span className="text-[11px] tracking-widest uppercase mono text-accent">PLATFORM GUARANTEES</span>
+        </div>
+        <h2 className="font-heading font-bold text-5xl text-text-primary">
+          Built on trust.<br /><span className="text-accent">Enforced on-chain.</span>
+        </h2>
+      </div>
+      {/* 2×2 grid */}
       <div className="grid grid-cols-2">
         {anchors.map((a, i) => (
           <div
