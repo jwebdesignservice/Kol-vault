@@ -156,7 +156,7 @@ function ProblemSection() {
 /* ─── Section 2: TWO SIDES ───────────────────────────────────────────────── */
 function TwoSidesSection() {
   return (
-    <section className="relative overflow-hidden bg-bg pb-20">
+    <section className="relative overflow-hidden bg-bg">
       <div className="max-w-7xl mx-auto px-8 pt-20 pb-0">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-10 h-px bg-accent" />
@@ -165,7 +165,7 @@ function TwoSidesSection() {
         <h2 className="font-heading font-bold text-5xl mb-16" style={{ color: '#FFFFFF' }}>Built for both sides<br /><span style={{ color: '#A855F7' }}>of the deal.</span></h2>
       </div>
       {/* Contained split */}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto pb-20">
       <div className="flex" style={{ minHeight: 420 }}>
         {/* Projects — left */}
         <div className="flex-1 relative overflow-hidden" style={{ background: '#0C0018' }}>
