@@ -557,7 +557,7 @@ export default function LandingPage() {
       <TrustSection />
 
       {/* CTA */}
-      <section className="relative overflow-hidden w-full px-8 py-24 text-center bg-bg">
+      <section className="relative overflow-hidden w-full px-8 py-40 text-center bg-bg">
         <CTAAurora />
         <div className="relative z-10 max-w-7xl mx-auto">
           <h2 className="font-heading font-bold text-5xl mb-4" style={{ color: '#FFFFFF' }}>
