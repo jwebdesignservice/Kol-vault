@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { CreateDisputeSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
 import { sendDisputeOpenedEmails } from "@/lib/email/service";
+import { validateEvidenceUrls } from "@/lib/security/ssrf";
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -71,6 +72,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const body = await req.json();
     const parsed = CreateDisputeSchema.safeParse(body);
     if (!parsed.success) return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
+
+    // SSRF protection — validate all evidence URLs are safe public HTTPS endpoints
+    if (parsed.data.evidence_urls?.length) {
+      const ssrf = validateEvidenceUrls(parsed.data.evidence_urls);
+      if (!ssrf.safe) return apiError(`Invalid evidence URL: ${ssrf.reason}`, 400);
+    }
 
     const { data: dispute, error: insertError } = await supabase
       .from("disputes").insert({ deal_id: params.id, raised_by: raisedById, raised_by_role: raisedByRole, ...parsed.data, status: "open" }).select().single();
