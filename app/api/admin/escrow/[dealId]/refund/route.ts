@@ -1,62 +1,36 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { RefundSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
+import { transferUsdcFromEscrow } from "@/lib/solana/escrow-ops";
 
-/**
- * GET /api/admin/deals
- * List all deals with project profile data. Admin only.
- * Query params: ?status=&page=1&limit=20
- */
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest, { params }: { params: { dealId: string } }) {
   try {
     await requireAuth(req, "admin");
     const supabase = createAdminClient();
 
-    const { searchParams } = new URL(req.url);
-    const statusFilter = searchParams.get("status");
-    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10)));
-    const offset = (page - 1) * limit;
+    const { data: wallet } = await supabase.from("escrow_wallets").select("*").eq("deal_id", params.dealId).single();
+    if (!wallet) return apiError("Escrow wallet not found", 404);
+    if (wallet.released_at) return apiError("Escrow already released", 400);
 
-    let query = supabase
-      .from("deals")
-      .select(
-        `
-        *,
-        project:project_profiles (
-          id,
-          user_id,
-          token_name,
-          token_symbol,
-          chain,
-          logo_url,
-          website_url
-        )
-      `,
-        { count: "exact" }
-      )
-      .order("created_at", { ascending: false })
-      .range(offset, offset + limit - 1);
+    const body = await req.json();
+    const parsed = RefundSchema.safeParse(body);
+    if (!parsed.success) return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
 
-    if (statusFilter) query = query.eq("status", statusFilter);
+    const amountUsdc = parsed.data.amount_usdc ?? wallet.balance_usdc;
+    if (!amountUsdc || amountUsdc <= 0) return apiError("Invalid refund amount", 400);
 
-    const { data, error, count } = await query;
+    const result = await transferUsdcFromEscrow(wallet.encrypted_private_key, wallet.public_key, parsed.data.to_wallet, amountUsdc);
 
-    if (error) {
-      console.error("[admin/deals GET]", error);
-      return apiError("Failed to fetch deals", 500);
-    }
+    await supabase.from("escrow_wallets").update({ released_at: new Date().toISOString(), balance_usdc: 0 }).eq("id", wallet.id);
+    await supabase.from("deals").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", params.dealId);
 
-    return apiSuccess({
-      deals: data,
-      pagination: { page, limit, total: count ?? 0 },
-    });
+    return apiSuccess({ refunded: true, tx_signature: result.txSignature, amount_usdc: amountUsdc, to_wallet: parsed.data.to_wallet });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[admin/deals GET]", res);
+    console.error("[admin/escrow/[dealId]/refund POST]", res);
     return apiError("Internal server error", 500);
   }
 }
-

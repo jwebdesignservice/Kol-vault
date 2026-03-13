@@ -1,62 +1,43 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { UpdateDealSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
 
-/**
- * GET /api/admin/deals
- * List all deals with project profile data. Admin only.
- * Query params: ?status=&page=1&limit=20
- */
-export async function GET(req: NextRequest) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await requireAuth(req, "admin");
     const supabase = createAdminClient();
 
-    const { searchParams } = new URL(req.url);
-    const statusFilter = searchParams.get("status");
-    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10)));
-    const offset = (page - 1) * limit;
+    const { data: deal } = await supabase.from("deals").select("id").eq("id", params.id).single();
+    if (!deal) return apiError("Deal not found", 404);
 
-    let query = supabase
-      .from("deals")
-      .select(
-        `
-        *,
-        project:project_profiles (
-          id,
-          user_id,
-          token_name,
-          token_symbol,
-          chain,
-          logo_url,
-          website_url
-        )
-      `,
-        { count: "exact" }
-      )
-      .order("created_at", { ascending: false })
-      .range(offset, offset + limit - 1);
+    const body = await req.json();
+    const parsed = UpdateDealSchema.safeParse(body);
+    if (!parsed.success) return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
 
-    if (statusFilter) query = query.eq("status", statusFilter);
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      console.error("[admin/deals GET]", error);
-      return apiError("Failed to fetch deals", 500);
-    }
-
-    return apiSuccess({
-      deals: data,
-      pagination: { page, limit, total: count ?? 0 },
-    });
+    const { data: updated, error } = await supabase
+      .from("deals").update({ ...parsed.data, updated_at: new Date().toISOString() }).eq("id", params.id).select().single();
+    if (error) return apiError("Failed to update deal", 500);
+    return apiSuccess({ deal: updated });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[admin/deals GET]", res);
+    console.error("[admin/deals/[id] PATCH]", res);
     return apiError("Internal server error", 500);
   }
 }
 
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    await requireAuth(req, "admin");
+    const supabase = createAdminClient();
+    const { error } = await supabase.from("deals").delete().eq("id", params.id);
+    if (error) return apiError("Failed to delete deal", 500);
+    return apiSuccess({ deleted: true });
+  } catch (res) {
+    if (res instanceof Response) return res;
+    console.error("[admin/deals/[id] DELETE]", res);
+    return apiError("Internal server error", 500);
+  }
+}

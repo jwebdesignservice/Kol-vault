@@ -1,75 +1,27 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth/helpers";
-import { createServerClient } from "@/lib/supabase/server";
-import { KOLProfileSchema } from "@/lib/validation/schemas";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { apiSuccess, apiError } from "@/lib/api/response";
 
-/**
- * GET /api/kols/profile
- * Returns the authenticated KOL's own profile.
- * Requires: auth + role=kol
- */
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const user = await requireAuth(req, "kol");
-    const supabase = createServerClient();
+    const user = await requireAuth(req);
+    const supabase = createAdminClient();
 
-    const { data, error } = await supabase
-      .from("kol_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-
-    if (error && error.code !== "PGRST116") {
-      return apiError("Failed to fetch profile", 500);
+    if (user.role !== "admin") {
+      const { data: kolProfile } = await supabase.from("kol_profiles").select("id").eq("user_id", user.id).single();
+      if (!kolProfile || kolProfile.id !== params.id) return apiError("Forbidden", 403);
     }
 
-    return apiSuccess({ profile: data ?? null });
+    const { data: history, error } = await supabase.from("kol_score_history").select("*").eq("kol_id", params.id).order("created_at", { ascending: false });
+    if (error) return apiError("Failed to fetch score history", 500);
+
+    const { data: profile } = await supabase.from("kol_profiles").select("score, tier").eq("id", params.id).single();
+    return apiSuccess({ score: profile?.score ?? 0, tier: profile?.tier ?? "bronze", history });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[kols/profile GET]", res);
+    console.error("[kols/[id]/score GET]", res);
     return apiError("Internal server error", 500);
   }
 }
-
-/**
- * POST /api/kols/profile
- * Upserts the authenticated KOL's profile.
- * Requires: auth + role=kol
- * Body: { display_name, bio?, niche?, twitter_handle?, telegram_handle?, youtube_handle?, tiktok_handle?, audience_size_estimate?, solana_wallet_address? }
- */
-export async function POST(req: NextRequest) {
-  try {
-    const user = await requireAuth(req, "kol");
-
-    const body = await req.json();
-    const parsed = KOLProfileSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
-    }
-
-    const supabase = createServerClient();
-
-    const { data, error } = await supabase
-      .from("kol_profiles")
-      .upsert(
-        { user_id: user.id, ...parsed.data },
-        { onConflict: "user_id" }
-      )
-      .select()
-      .single();
-
-    if (error) {
-      return apiError("Failed to save profile", 500);
-    }
-
-    return apiSuccess({ profile: data });
-  } catch (res) {
-    if (res instanceof Response) return res;
-    console.error("[kols/profile POST]", res);
-    return apiError("Internal server error", 500);
-  }
-}
-

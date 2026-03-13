@@ -1,62 +1,47 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { ReleaseSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
+import { transferUsdcFromEscrow } from "@/lib/solana/escrow-ops";
+import { calculateFee } from "@/lib/scoring/kol-score";
 
-/**
- * GET /api/admin/deals
- * List all deals with project profile data. Admin only.
- * Query params: ?status=&page=1&limit=20
- */
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest, { params }: { params: { dealId: string } }) {
   try {
     await requireAuth(req, "admin");
     const supabase = createAdminClient();
 
-    const { searchParams } = new URL(req.url);
-    const statusFilter = searchParams.get("status");
-    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10)));
-    const offset = (page - 1) * limit;
+    const { data: deal } = await supabase.from("deals").select("*, accepted_kol_id, platform_fee_bps").eq("id", params.dealId).single();
+    if (!deal) return apiError("Deal not found", 404);
+    if (!deal.accepted_kol_id) return apiError("No KOL assigned to this deal", 400);
 
-    let query = supabase
-      .from("deals")
-      .select(
-        `
-        *,
-        project:project_profiles (
-          id,
-          user_id,
-          token_name,
-          token_symbol,
-          chain,
-          logo_url,
-          website_url
-        )
-      `,
-        { count: "exact" }
-      )
-      .order("created_at", { ascending: false })
-      .range(offset, offset + limit - 1);
+    const { data: wallet } = await supabase.from("escrow_wallets").select("*").eq("deal_id", params.dealId).single();
+    if (!wallet) return apiError("Escrow wallet not found", 404);
+    if (wallet.released_at) return apiError("Escrow already released", 400);
 
-    if (statusFilter) query = query.eq("status", statusFilter);
+    const { data: kolProfile } = await supabase.from("kol_profiles").select("solana_wallet_address, display_name").eq("id", deal.accepted_kol_id).single();
+    if (!kolProfile?.solana_wallet_address) return apiError("KOL has no Solana wallet address on file", 400);
 
-    const { data, error, count } = await query;
+    const body = await req.json();
+    const parsed = ReleaseSchema.safeParse(body);
+    if (!parsed.success) return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
 
-    if (error) {
-      console.error("[admin/deals GET]", error);
-      return apiError("Failed to fetch deals", 500);
-    }
+    const totalAmount = parsed.data.amount_usdc ?? wallet.balance_usdc;
+    const feeAmount = calculateFee(totalAmount, deal.platform_fee_bps ?? 400);
+    const kolAmount = totalAmount - feeAmount;
+    if (kolAmount <= 0) return apiError("Invalid release amount after fee", 400);
 
-    return apiSuccess({
-      deals: data,
-      pagination: { page, limit, total: count ?? 0 },
-    });
+    const result = await transferUsdcFromEscrow(wallet.encrypted_private_key, wallet.public_key, kolProfile.solana_wallet_address, kolAmount);
+
+    await supabase.from("platform_fees").insert({ deal_id: params.dealId, fee_usdc: feeAmount, fee_bps: deal.platform_fee_bps ?? 400, collected_at: new Date().toISOString(), tx_signature: result.txSignature });
+    await supabase.from("escrow_wallets").update({ released_at: new Date().toISOString(), balance_usdc: 0 }).eq("id", wallet.id);
+    await supabase.from("deals").update({ status: "completed", updated_at: new Date().toISOString() }).eq("id", params.dealId);
+
+    return apiSuccess({ released: true, tx_signature: result.txSignature, kol_amount_usdc: kolAmount, fee_usdc: feeAmount, kol_wallet: kolProfile.solana_wallet_address });
   } catch (res) {
     if (res instanceof Response) return res;
-    console.error("[admin/deals GET]", res);
+    console.error("[admin/escrow/[dealId]/release POST]", res);
     return apiError("Internal server error", 500);
   }
 }
-
