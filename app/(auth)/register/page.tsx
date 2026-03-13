@@ -69,6 +69,12 @@ function RegisterForm() {
         body: JSON.stringify({ email: form.email, password: form.password, role: role!, name: form.name }),
       })
       if (res.ok) {
+        // Sign in immediately to establish session cookies
+        await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: form.email, password: form.password }),
+        })
         addToast('success', 'Account created! Setting up your profile...')
         router.push('/onboarding')
       } else {
