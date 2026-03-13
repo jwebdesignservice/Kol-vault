@@ -22,6 +22,8 @@ const PUBLIC_PATTERNS = [
   /^\/api\/kols\/(?!profile)[^/]+$/,  // /api/kols/[id] but not /api/kols/profile
   /^\/api\/webhooks\//,
   /^\/api\/projects\/[^/]+$/,          // /api/projects/[id] public read
+  /^\/api\/admin\/subscriptions\/check-expiring/, // cron route — uses CRON_SECRET bearer, not session
+  /^\/api\/health/,                    // health check
 ];
 
 function isProtected(pathname: string): boolean {
