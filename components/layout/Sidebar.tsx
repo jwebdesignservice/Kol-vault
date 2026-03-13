@@ -9,11 +9,11 @@ import { useAuth } from '@/hooks/useAuth'
 import { WalletButton } from '@/components/ui/WalletButton'
 
 const NAV_ITEMS = [
-  { href: '/dashboard', icon: Home, label: 'HOME' },
+  { href: '/dashboard', icon: Home, label: 'DASHBOARD' },
   { href: '/leaderboard', icon: BarChart2, label: 'LEADERBOARD' },
   { href: '/deals', icon: Briefcase, label: 'DEALS' },
   { href: '/profile', icon: User, label: 'PROFILE' },
-  { href: '/profile', icon: Settings, label: 'SETTINGS' },
+  { href: '/subscriptions/renew', icon: Settings, label: 'SUBSCRIPTION' },
 ]
 
 export function Sidebar() {
@@ -45,7 +45,7 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 flex flex-col py-2">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
-          const isActive = pathname.startsWith(href) && href !== '/dashboard'
+          const isActive = href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href)
           return (
             <Link
               key={label}
