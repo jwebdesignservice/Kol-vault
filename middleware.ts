@@ -9,6 +9,8 @@ const PROTECTED_PATTERNS = [
   /^\/api\/projects\//,
   /^\/api\/kols\/profile/,
   /^\/api\/subscriptions\//,
+  /^\/api\/admin\//,
+  /^\/api\/escrow\//,
 ];
 
 /**

@@ -80,16 +80,19 @@ export async function GET(req: NextRequest) {
         .order("created_at", { ascending: false })
         .range(offset, offset + limit - 1);
 
-      if (appliedDealIds.length > 0) {
-        // Show open deals OR applied deals
-        query = query.or(`status.eq.open,id.in.(${appliedDealIds.join(",")})`);
-      } else {
-        query = query.eq("status", "open");
-      }
-
       if (statusFilter && statusFilter !== "open") {
-        // If explicit status filter provided, honour it but only within the visible set
-        query = query.eq("status", statusFilter);
+        // Filtering by non-open status: only show their applied deals with that status
+        if (appliedDealIds.length === 0) {
+          return apiSuccess({ deals: [], total: 0, page, limit });
+        }
+        query = query.in("id", appliedDealIds).eq("status", statusFilter);
+      } else {
+        // No filter or filter=open: show open deals + all their applied deals
+        if (appliedDealIds.length > 0) {
+          query = query.or(`status.eq.open,id.in.(${appliedDealIds.join(",")})`);
+        } else {
+          query = query.eq("status", "open");
+        }
       }
       if (minBudget) query = query.gte("budget_usdc", parseFloat(minBudget));
       if (maxBudget) query = query.lte("budget_usdc", parseFloat(maxBudget));

@@ -1,5 +1,7 @@
-'use client'
+﻿'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { AuthProvider } from '@/lib/context/AuthContext'
 import { ToastProvider } from '@/lib/context/ToastContext'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -8,11 +10,15 @@ import { BottomNav } from '@/components/layout/BottomNav'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useAuth } from '@/hooks/useAuth'
 
-// DEV MODE: all pages accessible without auth
-// TODO: re-enable auth guards before launch
-
 function AppShell({ children }: { children: React.ReactNode }) {
-  const { loading } = useAuth()
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login')
+    }
+  }, [loading, user, router])
 
   if (loading) {
     return (
@@ -25,6 +31,11 @@ function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     )
+  }
+
+  if (!user) {
+    // Redirect in progress — render nothing to avoid flash
+    return null
   }
 
   return (
