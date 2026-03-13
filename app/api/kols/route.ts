@@ -1,57 +1,48 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
-import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { apiSuccess, apiError } from "@/lib/api/response";
 
-/**
- * GET /api/kols
- * Returns the public KOL directory. Only includes active-subscription KOLs.
- * Query params: ?tier=&niche=&limit=20&offset=0
- * Public — no auth required.
- */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const tier = searchParams.get("tier");
     const niche = searchParams.get("niche");
-    const limit = Math.min(Number(searchParams.get("limit") ?? 20), 100);
+    const sort = searchParams.get("sort") ?? "score";
+    const limit = Math.min(Number(searchParams.get("limit") ?? 50), 100);
     const offset = Number(searchParams.get("offset") ?? 0);
 
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
 
     let query = supabase
       .from("kol_profiles")
       .select(
-        "id, display_name, bio, niche, twitter_handle, telegram_handle, youtube_handle, tiktok_handle, audience_size_estimate, score, tier, created_at",
+        "id, display_name, bio, niche, twitter_handle, telegram_handle, audience_size_estimate, score, tier, subscription_status, created_at",
         { count: "exact" }
       )
-      .eq("subscription_status", "active")
-      .order("score", { ascending: false })
+      .not("display_name", "is", null)
       .range(offset, offset + limit - 1);
 
-    if (tier) {
-      query = query.eq("tier", tier);
+    // Sort options
+    if (sort === "score") {
+      query = query.order("score", { ascending: false });
+    } else if (sort === "newest") {
+      query = query.order("created_at", { ascending: false });
+    } else if (sort === "audience") {
+      query = query.order("audience_size_estimate", { ascending: false });
+    } else {
+      query = query.order("score", { ascending: false });
     }
 
-    if (niche) {
-      query = query.contains("niche", [niche]);
-    }
+    if (tier) query = query.eq("tier", tier);
+    if (niche) query = query.contains("niche", [niche]);
 
     const { data, error, count } = await query;
+    if (error) return apiError("Failed to fetch KOLs", 500);
 
-    if (error) {
-      return apiError("Failed to fetch KOLs", 500);
-    }
-
-    return apiSuccess({
-      kols: data,
-      total: count ?? 0,
-      limit,
-      offset,
-    });
+    return apiSuccess({ kols: data, total: count ?? 0, limit, offset });
   } catch (err) {
     console.error("[kols GET]", err);
     return apiError("Internal server error", 500);
   }
 }
-
