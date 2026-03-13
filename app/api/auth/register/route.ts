@@ -33,7 +33,13 @@ export async function POST(req: NextRequest) {
       options: { data: { role, name } },
     });
     if (authError || !authData.user) {
-      return apiError(authError?.message ?? "Registration failed", 400);
+      // Sanitize raw Supabase network errors (e.g. "fetch failed" = DB not configured)
+      const msg = authError?.message ?? ""
+      const isInfraError = msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network") || msg.toLowerCase().includes("enotfound")
+      return apiError(
+        isInfraError ? "Service temporarily unavailable. Please try again shortly." : (msg || "Registration failed"),
+        isInfraError ? 503 : 400
+      );
     }
 
     const userId = authData.user.id;

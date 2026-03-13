@@ -28,7 +28,12 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error || !data.user) {
-      return apiError("Invalid email or password", 401);
+      const msg = error?.message ?? ""
+      const isInfraError = msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network") || msg.toLowerCase().includes("enotfound")
+      return apiError(
+        isInfraError ? "Service temporarily unavailable. Please try again shortly." : "Invalid email or password",
+        isInfraError ? 503 : 401
+      );
     }
 
     const { data: userRow } = await supabase.from("users").select("*").eq("id", data.user.id).single();
