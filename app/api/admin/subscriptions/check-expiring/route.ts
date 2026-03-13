@@ -1,25 +1,29 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
-import { requireAuth } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { apiSuccess, apiError } from "@/lib/api/response";
 import { sendSubscriptionExpiringEmail } from "@/lib/email/service";
 
 /**
- * POST /api/admin/subscriptions/check-expiring
- * Admin only or internal cron trigger.
- * Finds all active KOL subscriptions expiring within 7 days and sends warning emails.
- * Returns the count of emails sent.
+ * GET /api/admin/subscriptions/check-expiring
+ * Called daily by Vercel Cron OR manually by admin.
  *
- * Vercel cron example (vercel.json):
- *   { "path": "/api/admin/subscriptions/check-expiring", "schedule": "0 9 * * *" }
+ * Auth: Vercel Cron sends Authorization: Bearer <CRON_SECRET>
+ * Manual: pass the same header with the CRON_SECRET value.
+ *
+ * Schedule (vercel.json): "0 9 * * *" (9AM UTC daily)
  */
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
+  // Validate cron secret
+  const authHeader = req.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return apiError("Unauthorized", 401);
+  }
+
   try {
-    await requireAuth(req, "admin");
-
     const supabase = createAdminClient();
-
     const now = new Date();
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -31,27 +35,27 @@ export async function POST(req: NextRequest) {
       .lte("current_period_end", sevenDaysFromNow.toISOString());
 
     if (error) {
-      console.error("[admin/subscriptions/check-expiring]", error);
+      console.error("[check-expiring] query error", error);
       return apiError("Failed to query subscriptions", 500);
     }
 
     if (!expiring || expiring.length === 0) {
-      return apiSuccess({ sent: 0 });
+      return apiSuccess({ sent: 0, message: "No subscriptions expiring in the next 7 days" });
     }
 
     const sends = expiring.map((sub) =>
-      sendSubscriptionExpiringEmail(sub.kol_profile_id, sub.current_period_end as string).catch(
-        console.error
-      )
+      sendSubscriptionExpiringEmail(
+        sub.kol_profile_id,
+        sub.current_period_end as string
+      ).catch(console.error)
     );
 
     await Promise.all(sends);
 
+    console.log(`[check-expiring] Sent ${expiring.length} expiry warning emails`);
     return apiSuccess({ sent: expiring.length });
-  } catch (res) {
-    if (res instanceof Response) return res;
-    console.error("[admin/subscriptions/check-expiring]", res);
+  } catch (err) {
+    console.error("[check-expiring]", err);
     return apiError("Internal server error", 500);
   }
 }
-
