@@ -11,15 +11,15 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, prefix, className = '', type, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         {label && (
-          <label className="text-[10px] tracking-widest uppercase text-text-muted font-medium">
+          <label className="text-[10px] tracking-widest uppercase text-text-secondary font-medium">
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {prefix && (
-            <span className="absolute left-3 text-text-muted mono text-sm select-none">
+            <span className="absolute left-3 text-text-secondary mono text-sm select-none">
               {prefix}
             </span>
           )}
@@ -27,8 +27,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={type}
             className={[
-              'w-full bg-bg-surface border border-border',
-              'text-text-primary placeholder:text-text-muted',
+              'w-full bg-bg border border-border',
+              'text-text-primary placeholder:text-text-secondary/50',
               'px-3 py-2.5 text-sm',
               'focus:outline-none focus:border-accent focus:shadow-[0_0_8px_rgba(123,47,190,0.2)]',
               'transition-all duration-150',
@@ -58,17 +58,17 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, className = '', ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         {label && (
-          <label className="text-[10px] tracking-widest uppercase text-text-muted font-medium">
+          <label className="text-[10px] tracking-widest uppercase text-text-secondary font-medium">
             {label}
           </label>
         )}
         <textarea
           ref={ref}
           className={[
-            'w-full bg-bg-surface border border-border',
-            'text-text-primary placeholder:text-text-muted',
+            'w-full bg-bg border border-border',
+            'text-text-primary placeholder:text-text-secondary/50',
             'px-3 py-2.5 text-sm',
             'focus:outline-none focus:border-accent focus:shadow-[0_0_8px_rgba(123,47,190,0.2)]',
             'transition-all duration-150 resize-none',

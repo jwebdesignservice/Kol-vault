@@ -65,7 +65,7 @@ function LoginForm() {
       </div>
 
       {/* Card */}
-      <div className="bg-bg-surface border border-border p-8">
+      <div className="bg-bg-elevated/50 border border-border p-8">
         <h2 className="font-heading font-bold text-lg tracking-widest uppercase text-text-primary mb-6">
           SIGN IN
         </h2>

@@ -145,7 +145,7 @@ function RegisterForm() {
 
       {/* Step 2 — Details */}
       {step === 2 && (
-        <div className="bg-bg-surface border border-border p-8">
+        <div className="bg-bg-elevated/50 border border-border p-8">
           <div className="flex items-center gap-2 mb-6">
             <span className="text-[10px] tracking-widest uppercase text-text-muted">Registering as</span>
             <span className="text-[10px] tracking-widest uppercase text-accent font-bold">{role}</span>
