@@ -1,6 +1,7 @@
 ﻿export const dynamic = 'force-dynamic'
 import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { RegisterSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
 import { sendWelcomeEmail } from "@/lib/email/service";
@@ -44,16 +45,19 @@ export async function POST(req: NextRequest) {
 
     const userId = authData.user.id;
 
-    const { error: userError } = await supabase.from("users").insert({ id: userId, email, role });
+    // Use admin client for DB inserts (bypasses RLS — session not established yet)
+    const admin = createAdminClient();
+
+    const { error: userError } = await admin.from("users").insert({ id: userId, email, role });
     if (userError) return apiError("Failed to create user record", 500);
 
     let profile = null;
     if (role === "project") {
-      const { data, error } = await supabase.from("project_profiles").insert({ user_id: userId }).select().single();
+      const { data, error } = await admin.from("project_profiles").insert({ user_id: userId }).select().single();
       if (error) return apiError("Failed to create project profile", 500);
       profile = data;
     } else if (role === "kol") {
-      const { data, error } = await supabase.from("kol_profiles").insert({ user_id: userId, display_name: name }).select().single();
+      const { data, error } = await admin.from("kol_profiles").insert({ user_id: userId, display_name: name }).select().single();
       if (error) return apiError("Failed to create KOL profile", 500);
       profile = data;
     }
