@@ -4,18 +4,25 @@ import { requireAuth } from "@/lib/auth/helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { UpdateDealSchema } from "@/lib/validation/schemas";
 import { apiSuccess, apiError } from "@/lib/api/response";
+import { canTransition, type DealStatus } from "@/lib/deals/state-machine";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await requireAuth(req, "admin");
     const supabase = createAdminClient();
 
-    const { data: deal } = await supabase.from("deals").select("id").eq("id", params.id).single();
+    const { data: deal } = await supabase.from("deals").select("id, status").eq("id", params.id).single();
     if (!deal) return apiError("Deal not found", 404);
 
     const body = await req.json();
     const parsed = UpdateDealSchema.safeParse(body);
     if (!parsed.success) return apiError("Validation failed", 400, parsed.error.flatten().fieldErrors);
+
+    // Enforce state machine even for admins
+    if (parsed.data.status && parsed.data.status !== deal.status) {
+      const transition = canTransition(deal.status as DealStatus, parsed.data.status as DealStatus, "admin");
+      if (!transition.allowed) return apiError(transition.reason ?? "Invalid status transition", 400);
+    }
 
     const { data: updated, error } = await supabase
       .from("deals").update({ ...parsed.data, updated_at: new Date().toISOString() }).eq("id", params.id).select().single();

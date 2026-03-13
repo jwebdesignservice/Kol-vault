@@ -81,7 +81,8 @@ export const CreateDealSchema = z.object({
 });
 
 export const UpdateDealSchema = CreateDealSchema.partial().extend({
-  status: z.enum(["draft", "open", "cancelled"]).optional(),
+  // All statuses accepted here — state machine in the route handler enforces valid transitions
+  status: z.enum(["draft", "open", "in_progress", "pending_review", "completed", "cancelled", "disputed"]).optional(),
 });
 
 export const CreateApplicationSchema = z.object({
