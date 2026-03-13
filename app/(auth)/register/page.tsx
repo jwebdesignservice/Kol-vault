@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -33,7 +33,7 @@ function RegisterForm() {
   const { addToast } = useToast()
   const [step, setStep] = useState<Step>(1)
   const [role, setRole] = useState<Role | null>(null)
-  const [form, setForm] = useState({ email: '', password: '', confirm: '', twitterHandle: '' })
+  const [form, setForm] = useState({ email: '', password: '', confirm: '', name: '' })
   const [errors, setErrors] = useState<Partial<typeof form & { role: string }>>({})
   const [loading, setLoading] = useState(false)
 
@@ -52,10 +52,10 @@ function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: typeof errors = {}
+    if (!form.name.trim()) newErrors.name = 'Required'
     if (!form.email) newErrors.email = 'Required'
     if (!form.password || form.password.length < 8) newErrors.password = 'Min 8 characters'
     if (form.password !== form.confirm) newErrors.confirm = 'Passwords do not match'
-    if (role === 'kol' && !form.twitterHandle) newErrors.twitterHandle = 'Required for KOLs'
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -63,20 +63,14 @@ function RegisterForm() {
     setErrors({})
     setLoading(true)
     try {
-      const body: Record<string, string> = {
-        email: form.email,
-        password: form.password,
-        role: role!,
-      }
-      if (role === 'kol') body.twitter_handle = form.twitterHandle
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ email: form.email, password: form.password, role: role!, name: form.name }),
       })
       if (res.ok) {
-        addToast('success', 'Account created! Signing you in...')
-        router.push('/dashboard')
+        addToast('success', 'Account created! Setting up your profile...')
+        router.push('/onboarding')
       } else {
         const data = await res.json()
         addToast('error', data.error ?? 'Registration failed.')
@@ -87,6 +81,9 @@ function RegisterForm() {
       setLoading(false)
     }
   }
+
+  const namePlaceholder = role === 'project' ? 'Project or token name' : 'Your display name'
+  const nameLabel = role === 'project' ? 'Project Name' : 'Display Name'
 
   return (
     <div className="w-full max-w-[520px]">
@@ -111,18 +108,8 @@ function RegisterForm() {
           const isDone = step > n
           return (
             <div key={label} className="flex-1">
-              <div
-                className={[
-                  'h-1 transition-colors duration-200',
-                  isDone || isActive ? 'bg-accent' : 'bg-border',
-                ].join(' ')}
-              />
-              <span
-                className={[
-                  'text-[10px] tracking-widest uppercase pt-1 block',
-                  isActive ? 'text-accent' : isDone ? 'text-positive' : 'text-text-muted',
-                ].join(' ')}
-              >
+              <div className={['h-1 transition-colors duration-200', isDone || isActive ? 'bg-accent' : 'bg-border'].join(' ')} />
+              <span className={['text-[10px] tracking-widest uppercase pt-1 block', isActive ? 'text-accent' : isDone ? 'text-positive' : 'text-text-muted'].join(' ')}>
                 {n}. {label}
               </span>
             </div>
@@ -140,30 +127,19 @@ function RegisterForm() {
                 onClick={() => { setRole(r); setErrors({}) }}
                 className={[
                   'clip-corner-tr flex flex-col gap-3 p-6 border text-left transition-all duration-150',
-                  role === r
-                    ? 'glow-border bg-bg-elevated'
-                    : 'border-border bg-bg-surface hover:border-accent/50',
+                  role === r ? 'glow-border bg-bg-elevated' : 'border-border bg-bg-surface hover:border-accent/50',
                 ].join(' ')}
               >
-                <Icon
-                  size={28}
-                  className={role === r ? 'text-accent-bright' : 'text-text-muted'}
-                />
+                <Icon size={28} className={role === r ? 'text-accent-bright' : 'text-text-muted'} />
                 <div>
-                  <h3 className="font-heading font-bold text-base tracking-widest text-text-primary mb-1">
-                    {title}
-                  </h3>
+                  <h3 className="font-heading font-bold text-base tracking-widest text-text-primary mb-1">{title}</h3>
                   <p className="text-text-secondary text-[12px] leading-relaxed">{desc}</p>
                 </div>
               </button>
             ))}
           </div>
-          {errors.role && (
-            <p className="text-[11px] text-negative tracking-wide">{errors.role}</p>
-          )}
-          <Button variant="primary" size="lg" className="w-full mt-2" onClick={goToStep2}>
-            CONTINUE
-          </Button>
+          {errors.role && <p className="text-[11px] text-negative tracking-wide">{errors.role}</p>}
+          <Button variant="primary" size="lg" className="w-full mt-2" onClick={goToStep2}>CONTINUE</Button>
         </div>
       )}
 
@@ -173,56 +149,15 @@ function RegisterForm() {
           <div className="flex items-center gap-2 mb-6">
             <span className="text-[10px] tracking-widest uppercase text-text-muted">Registering as</span>
             <span className="text-[10px] tracking-widest uppercase text-accent font-bold">{role}</span>
-            <button
-              onClick={() => setStep(1)}
-              className="text-[10px] tracking-widest uppercase text-text-muted hover:text-text-primary ml-auto"
-            >
-              CHANGE
-            </button>
+            <button onClick={() => setStep(1)} className="text-[10px] tracking-widest uppercase text-text-muted hover:text-text-primary ml-auto">CHANGE</button>
           </div>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={set('email')}
-              error={errors.email}
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="Min 8 characters"
-              value={form.password}
-              onChange={set('password')}
-              error={errors.password}
-            />
-            <Input
-              label="Confirm Password"
-              type="password"
-              placeholder="Repeat password"
-              value={form.confirm}
-              onChange={set('confirm')}
-              error={errors.confirm}
-            />
-            {role === 'kol' && (
-              <Input
-                label="Twitter / X Handle"
-                type="text"
-                placeholder="@yourhandle"
-                value={form.twitterHandle}
-                onChange={set('twitterHandle')}
-                error={errors.twitterHandle}
-              />
-            )}
+            <Input label={nameLabel} type="text" placeholder={namePlaceholder} value={form.name} onChange={set('name')} error={errors.name} />
+            <Input label="Email Address" type="email" placeholder="you@example.com" value={form.email} onChange={set('email')} error={errors.email} />
+            <Input label="Password" type="password" placeholder="Min 8 characters" value={form.password} onChange={set('password')} error={errors.password} />
+            <Input label="Confirm Password" type="password" placeholder="Repeat password" value={form.confirm} onChange={set('confirm')} error={errors.confirm} />
             <div className="mt-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full"
-                disabled={loading}
-              >
+              <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
                 {loading ? 'CREATING ACCOUNT...' : 'COMPLETE REGISTRATION'}
               </Button>
             </div>
@@ -233,15 +168,9 @@ function RegisterForm() {
       <div className="text-center mt-6">
         <span className="text-text-muted text-sm">
           Already have an account?{' '}
-          <Link
-            href="/login"
-            className="text-accent hover:text-accent-bright transition-colors tracking-widest uppercase text-[11px] font-medium"
-          >
-            SIGN IN
-          </Link>
+          <Link href="/login" className="text-accent hover:text-accent-bright transition-colors tracking-widest uppercase text-[11px] font-medium">SIGN IN</Link>
         </span>
       </div>
-
       <ToastContainer />
     </div>
   )
